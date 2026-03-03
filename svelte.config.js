@@ -1,13 +1,32 @@
 import adapter from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { mdsvex } from 'mdsvex';
+import remarkGfm from 'remark-gfm';
+import remarkWikiLink from 'remark-wiki-link';
+import remarkCallouts from 'remark-callouts';
+import rehypeSlug from 'rehype-slug';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 
 /** @type {import('mdsvex').MdsvexOptions} */
 const mdsvexOptions = {
     extensions: ['.md', '.svx'],
     smartypants: {
         dashes: 'oldschool'
-    }
+    },
+    remarkPlugins: [
+        remarkGfm,
+        [remarkWikiLink, {
+            pathFormat: 'obsidian-short',
+            hrefTemplate: (permalink) => `/${permalink}`,
+            pageResolver: (name) => [name.toLowerCase().replace(/ /g, '-')],
+            wikiLinkClassName: 'wikilink-internal'
+        }],
+        remarkCallouts
+    ],
+    rehypePlugins: [
+        rehypeSlug,
+        [rehypeAutolinkHeadings, { behavior: 'wrap' }]
+    ]
 };
 
 /** @type {import('@sveltejs/kit').Config} */
