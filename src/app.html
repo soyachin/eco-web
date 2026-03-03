@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        
+        <script>
+            (function() {
+                try {
+                    const saved = localStorage.getItem('theme');
+                    const system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                    const theme = saved || system;
+                    document.documentElement.setAttribute('data-theme', theme);
+                } catch (e) {
+                    console.error("Error cargando tema:", e);
+                }
+            })();
+        </script>
+
+        %sveltekit.head%
+    </head>
+    <body data-sveltekit-preload-data="hover" class="bg-background text-foreground">
+        <div style="display: contents">%sveltekit.body%</div>
+    </body>
+</html>
