@@ -1,7 +1,17 @@
 export function formatDate(date: any) {
     if (!date) return "";
-    const d = new Date(date);
+
+    let d: Date;
+    if (typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        // Parse YYYY-MM-DD manually to avoid UTC shift
+        const [year, month, day] = date.split("-").map(Number);
+        d = new Date(year, month - 1, day);
+    } else {
+        d = new Date(date);
+    }
+
     if (isNaN(d.getTime())) return date;
+
     return d.toLocaleDateString("es-ES", {
         year: "numeric",
         month: "long",
@@ -49,7 +59,7 @@ import type { Note, Backlink } from "./types";
 
 export function sortNotesByDateDesc(notes: Note[]): Note[] {
     if (!Array.isArray(notes)) return [];
-    
+
     return [...notes].sort((a, b) => {
         const dateA = a.meta?.date ? new Date(a.meta.date).getTime() : 0;
         const dateB = b.meta?.date ? new Date(b.meta.date).getTime() : 0;
@@ -59,7 +69,7 @@ export function sortNotesByDateDesc(notes: Note[]): Note[] {
 
 export function sortBacklinksWithFallback(backlinks: Backlink[]): Backlink[] {
     if (!Array.isArray(backlinks)) return [];
-    
+
     return [...backlinks].sort((a, b) => {
         if (a.date && b.date) {
             return new Date(b.date).getTime() - new Date(a.date).getTime();
