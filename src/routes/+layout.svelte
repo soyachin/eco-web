@@ -3,18 +3,25 @@
   import ThemeToggle from "$lib/components/ThemeToggle.svelte";
   import LinkPreview from "$lib/components/LinkPreview.svelte";
   import { page } from "$app/state";
+  import { browser } from "$app/environment";
   import { sortBacklinksWithFallback } from "$lib/utils";
   import type { PreviewState, LayoutData } from "$lib/types";
   import type { Component } from "svelte";
   import { onMount, onDestroy } from "svelte";
 
+  // Estado para controlar flashing
+  let isHydrated = $state(false);
+
   // Establecer tema oscuro como default
   $effect(() => {
-    // Aplicar tema oscuro inmediatamente en el servidor (SSR)
     if (typeof document !== 'undefined') {
       const theme = localStorage.getItem('theme') || 'dark';
       document.documentElement.setAttribute('data-theme', theme);
     }
+  });
+
+  onMount(() => {
+    isHydrated = true;
   });
 
   let GraphView = $state<Component<any> | null>(null);
@@ -101,10 +108,21 @@
 
 <svelte:window on:mouseover={handleMouseOver} on:mouseout={handleMouseOut} />
 
-<!-- Estilos responsive críticos -->
+<!-- Estilos para evitar flashing -->
 <svelte:head>
   <style>
-    /* Asegurar que el contenido principal siempre esté centrado */
+    /* Asegurar tema oscuro inmediato */
+    html[data-theme="dark"] {
+      background-color: var(--bg-primary);
+      color: var(--fg-primary);
+    }
+    
+    /* Transición suave */
+    .layout-container {
+      transition: opacity 0.3s ease;
+    }
+    
+    /* Responsive */
     @media (max-width: 1024px) {
       .grid-container {
         grid-template-columns: 1fr !important;
@@ -122,7 +140,8 @@
   </style>
 </svelte:head>
 
-<nav class="navbar">
+<div class="layout-container {isHydrated ? 'opacity-100' : 'opacity-0'}">
+  <nav class="navbar">
   <div class="navbar-container">
     <a href="/" class="logo">
       <span>~/ecomecanico</span>
@@ -247,6 +266,7 @@
 {#if Search}
   <Search bind:isOpen={isSearchOpen} />
 {/if}
+</div>
 
 <style lang="postcss">
   @reference "../app.css";
@@ -257,8 +277,18 @@
     background-color: var(--bg-primary);
   }
 
+  /* Unificar fondos Gruvbox para evitar franjas */
+  :global(body), 
+  .navbar, 
+  .main-layout, 
+  .content-area, 
+  .grid-container {
+    background-color: var(--bg-primary) !important;
+  }
+
   .navbar {
-    @apply sticky top-0 z-40 w-full border-b border-border-subtle bg-background/70 backdrop-blur-md;
+    @apply sticky top-0 z-40 w-full border-b border-border-subtle backdrop-blur-md;
+    background-color: var(--bg-primary) !important;
   }
 
   .navbar-container {
@@ -314,8 +344,8 @@
 
   .card {
     @apply rounded-xl border p-4;
-    background-color: color-mix(in srgb, var(--bg-secondary) 20%, transparent);
-    border-color: color-mix(in srgb, var(--bg-tertiary), transparent);
+    background-color: color-mix(in srgb, var(--bg-primary) 10%, transparent);
+    border-color: color-mix(in srgb, var(--bg-primary) 30%, transparent);
   }
 
   .card-title {

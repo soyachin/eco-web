@@ -234,7 +234,7 @@
   /* Blockquotes */
   .prose blockquote {
     border-left: 4px solid var(--brand-primary) !important;
-    background-color: var(--bg-secondary) !important;
+    background-color: var(--bg-primary) !important;
     padding: 1.5em 2em !important;
     border-radius: 0 0.5rem 0.5rem 0 !important;
     color: var(--fg-primary) !important;

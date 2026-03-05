@@ -10,6 +10,11 @@
                 try {
                     const theme = localStorage.getItem('theme') || 'dark';
                     document.documentElement.setAttribute('data-theme', theme);
+                    
+                    // Esperar a que el body exista
+                    document.addEventListener('DOMContentLoaded', function() {
+                        document.body.className = 'bg-background text-foreground';
+                    });
                 } catch (e) {
                     console.error("Error cargando tema:", e);
                 }
@@ -17,9 +22,21 @@
         </script>
         
         <style>
-            /* Transiciones suaves para cambios de tema */
+            /* Variables Gruvbox críticas */
+            :root {
+                --bg-primary: #282828;
+                --fg-primary: #ebdbb2;
+            }
+            
+            /* Estilos críticos para evitar flashing */
             html, body {
                 transition: background-color 0.3s ease, color 0.3s ease;
+            }
+            
+            /* Tema oscuro por defecto - usar variables CSS */
+            html[data-theme="dark"] {
+                background-color: var(--bg-primary);
+                color: var(--fg-primary);
             }
         </style>
         
