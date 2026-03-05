@@ -7,16 +7,43 @@
         <script>
             (function() {
                 try {
+                    // Aplicar tema inmediatamente para evitar flashing
                     const saved = localStorage.getItem('theme');
                     const system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
                     const theme = saved || system;
                     document.documentElement.setAttribute('data-theme', theme);
+                    document.documentElement.style.setProperty('--initial-theme', theme);
+                    
+                    // Aplicar clases de fondo inmediatamente
+                    document.body.className = 'bg-background text-foreground';
                 } catch (e) {
                     console.error("Error cargando tema:", e);
                 }
             })();
         </script>
-
+        
+        <style>
+            /* Estilos críticos para evitar flashing */
+            html, body {
+                transition: background-color 0.3s ease, color 0.3s ease;
+            }
+            
+            /* Centrar contenido en todos los tamaños */
+            .main-layout {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            @media (max-width: 1024px) {
+                .grid-container {
+                    grid-template-columns: 1fr !important;
+                }
+                .sidebar {
+                    display: none !important;
+                }
+            }
+        </style>
+        
         %sveltekit.head%
     </head>
     <body data-sveltekit-preload-data="hover" class="bg-background text-foreground">

@@ -4,12 +4,12 @@
   let theme = $state("dark");
 
   onMount(() => {
-    const savedTheme = localStorage.getItem("theme");
-    const prefersLight = window.matchMedia(
-      "(prefers-color-scheme: light)",
-    ).matches;
-
-    applyTheme(savedTheme || (prefersLight ? "light" : "dark"));
+    // Sincronizar con el tema ya aplicado en app.html
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 
+                         localStorage.getItem("theme") || 
+                         (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    
+    applyTheme(currentTheme);
   });
 
   function applyTheme(newTheme: string) {

@@ -75,6 +75,25 @@
   });
 
   let isSearchOpen = $state(false);
+  
+  // Asegurar que el contenido esté siempre centrado
+  onMount(() => {
+    // Aplicar estilos críticos para responsive
+    const style = document.createElement('style');
+    style.textContent = `
+      @media (max-width: 1024px) {
+        .content-area {
+          grid-column: 1 / -1 !important;
+          max-width: 100% !important;
+        }
+        .content-wrapper {
+          margin: 0 auto !important;
+          max-width: min(100% - 2rem, 800px) !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  });
 </script>
 
 <svelte:window on:mouseover={handleMouseOver} on:mouseout={handleMouseOut} />
