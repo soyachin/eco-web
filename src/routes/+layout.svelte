@@ -8,10 +8,20 @@
   import type { Component } from "svelte";
   import { onMount, onDestroy } from "svelte";
 
+  // Establecer tema oscuro como default
+  $effect(() => {
+    // Aplicar tema oscuro inmediatamente en el servidor (SSR)
+    if (typeof document !== 'undefined') {
+      const theme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+  });
+
   let GraphView = $state<Component<any> | null>(null);
   let Search = $state<Component<any> | null>(null);
 
   onMount(async () => {
+    // Cargar componentes dinámicamente
     const [gv, s] = await Promise.all([
       import("$lib/components/GraphView.svelte"),
       import("$lib/components/Search.svelte"),
@@ -87,28 +97,30 @@
   });
 
   let isSearchOpen = $state(false);
-
-  // Asegurar que el contenido esté siempre centrado
-  onMount(() => {
-    // Aplicar estilos críticos para responsive
-    const style = document.createElement("style");
-    style.textContent = `
-      @media (max-width: 1024px) {
-        .content-area {
-          grid-column: 1 / -1 !important;
-          max-width: 100% !important;
-        }
-        .content-wrapper {
-          margin: 0 auto !important;
-          max-width: min(100% - 2rem, 800px) !important;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-  });
 </script>
 
 <svelte:window on:mouseover={handleMouseOver} on:mouseout={handleMouseOut} />
+
+<!-- Estilos responsive críticos -->
+<svelte:head>
+  <style>
+    /* Asegurar que el contenido principal siempre esté centrado */
+    @media (max-width: 1024px) {
+      .grid-container {
+        grid-template-columns: 1fr !important;
+      }
+      
+      .content-area {
+        grid-column: 1 !important;
+        width: 100%;
+      }
+      
+      .sidebar {
+        display: none !important;
+      }
+    }
+  </style>
+</svelte:head>
 
 <nav class="navbar">
   <div class="navbar-container">

@@ -5,17 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         
         <script>
+            // Establecer tema oscuro como default inmediatamente
             (function() {
                 try {
-                    // Aplicar tema inmediatamente para evitar flashing
-                    const saved = localStorage.getItem('theme');
-                    const system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                    const theme = saved || system;
+                    const theme = localStorage.getItem('theme') || 'dark';
                     document.documentElement.setAttribute('data-theme', theme);
-                    document.documentElement.style.setProperty('--initial-theme', theme);
-                    
-                    // Aplicar clases de fondo inmediatamente
-                    document.body.className = 'bg-background text-foreground';
                 } catch (e) {
                     console.error("Error cargando tema:", e);
                 }
@@ -23,24 +17,9 @@
         </script>
         
         <style>
-            /* Estilos críticos para evitar flashing */
+            /* Transiciones suaves para cambios de tema */
             html, body {
                 transition: background-color 0.3s ease, color 0.3s ease;
-            }
-            
-            /* Centrar contenido en todos los tamaños */
-            .main-layout {
-                margin-left: auto;
-                margin-right: auto;
-            }
-            
-            @media (max-width: 1024px) {
-                .grid-container {
-                    grid-template-columns: 1fr !important;
-                }
-                .sidebar {
-                    display: none !important;
-                }
             }
         </style>
         

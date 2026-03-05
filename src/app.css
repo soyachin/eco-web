@@ -28,22 +28,6 @@
   margin-right: auto;
 }
 
-/* Asegurar que el contenido principal siempre esté centrado */
-@media (max-width: 1024px) {
-  .grid-container {
-    grid-template-columns: 1fr !important;
-  }
-  
-  .content-area {
-    grid-column: 1 !important;
-    width: 100%;
-  }
-  
-  .sidebar {
-    display: none !important;
-  }
-}
-
 @font-face {
   font-family: 'Serious Shann';
   src: url('/SeriousShanns-Italic.otf') format('opentype');
