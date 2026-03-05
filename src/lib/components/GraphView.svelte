@@ -18,12 +18,19 @@
         target: string | Node;
     }
 
+    import type { Note } from "$lib/types";
+
     let {
-        nodes = [],
-        links = [],
+        nodes = [] as Note[],
+        links = [] as { source: string; target: string }[],
         currentSlug = "",
         isGlobal = false,
-    } = $props();
+    } = $props<{
+        nodes: Note[];
+        links: { source: string; target: string }[];
+        currentSlug?: string;
+        isGlobal?: boolean;
+    }>();
 
     let svgElement: SVGSVGElement;
     let width = $state(0);
@@ -32,21 +39,21 @@
     // --- Data Filtering ---
     const filteredNodes = $derived.by((): Node[] => {
         if (isGlobal)
-            return nodes.map((n) => ({
+            return nodes.map((n: Note) => ({
                 id: n.slug,
                 title: n.meta?.title || n.slug,
                 isCurrent: n.slug === currentSlug,
             }));
 
         const neighbors = new Set([currentSlug]);
-        links.forEach((l) => {
+        links.forEach((l: { source: string; target: string }) => {
             if (l.source === currentSlug) neighbors.add(l.target);
             if (l.target === currentSlug) neighbors.add(l.source);
         });
 
         return nodes
-            .filter((n) => neighbors.has(n.slug))
-            .map((n) => ({
+            .filter((n: Note) => neighbors.has(n.slug))
+            .map((n: Note) => ({
                 id: n.slug,
                 title: n.meta?.title || n.slug,
                 isCurrent: n.slug === currentSlug,
@@ -56,8 +63,14 @@
     const filteredLinks = $derived.by(() => {
         const nodeIds = new Set(filteredNodes.map((n) => n.id));
         return links
-            .filter((l) => nodeIds.has(l.source) && nodeIds.has(l.target))
-            .map((l) => ({ source: l.source, target: l.target }));
+            .filter(
+                (l: { source: string; target: string }) =>
+                    nodeIds.has(l.source) && nodeIds.has(l.target),
+            )
+            .map((l: { source: string; target: string }) => ({
+                source: l.source,
+                target: l.target,
+            }));
     });
 
     // --- Simulation ---
@@ -108,7 +121,7 @@
             .join("g")
             .call(
                 d3
-                    .drag<any, any>()
+                    .drag<any, Node>()
                     .on("start", dragstarted)
                     .on("drag", dragged)
                     .on("end", dragended),
@@ -134,23 +147,26 @@
 
         simulation.on("tick", () => {
             linkLines
-                .attr("x1", (d) => (d.source as any).x)
-                .attr("y1", (d) => (d.source as any).y)
-                .attr("x2", (d) => (d.target as any).x)
-                .attr("y2", (d) => (d.target as any).y);
-            nodeGroups.attr("transform", (d) => `translate(${d.x},${d.y})`);
+                .attr("x1", (d: any) => (d.source as Node).x!)
+                .attr("y1", (d: any) => (d.source as Node).y!)
+                .attr("x2", (d: any) => (d.target as Node).x!)
+                .attr("y2", (d: any) => (d.target as Node).y!);
+            nodeGroups.attr(
+                "transform",
+                (d: any) => `translate(${(d as Node).x},${(d as Node).y})`,
+            );
         });
 
-        function dragstarted(e: any) {
+        function dragstarted(e: d3.D3DragEvent<SVGGElement, Node, Node>) {
             if (!e.active) simulation.alphaTarget(0.3).restart();
             e.subject.fx = e.subject.x;
             e.subject.fy = e.subject.y;
         }
-        function dragged(e: any) {
+        function dragged(e: d3.D3DragEvent<SVGGElement, Node, Node>) {
             e.subject.fx = e.x;
             e.subject.fy = e.y;
         }
-        function dragended(e: any) {
+        function dragended(e: d3.D3DragEvent<SVGGElement, Node, Node>) {
             if (!e.active) simulation.alphaTarget(0);
             e.subject.fx = null;
             e.subject.fy = null;

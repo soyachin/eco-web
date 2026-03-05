@@ -4,13 +4,20 @@
     import { goto } from "$app/navigation";
     import { Search as SearchIcon } from "lucide-svelte";
 
+    import type { Note } from "$lib/types";
+
+    interface SearchItem extends Note {
+        tags?: string[];
+        title: string;
+    }
+
     let { isSidebar = false, isOpen = $bindable(false) } = $props();
 
     let searchTerm = $state("");
-    let results = $state<any[]>([]);
+    let results = $state<SearchItem[]>([]);
     let selectedIndex = $state(0);
-    let index = $state<any>(null);
-    let allData = $state<any[]>([]);
+    let index = $state<Index | null>(null);
+    let allData = $state<SearchItem[]>([]);
     let searchInput: HTMLInputElement | undefined = $state();
 
     export function toggleVisibility() {
@@ -31,7 +38,7 @@
                     const tagsStr = Array.isArray(item.tags)
                         ? item.tags.join(" ")
                         : "";
-                    index.add(i, `${item.title} ${tagsStr} ${item.slug}`);
+                    index?.add(i, `${item.title} ${tagsStr} ${item.slug}`);
                 });
             } catch (err) {
                 console.error("Failed to initialize search:", err);
@@ -66,7 +73,7 @@
         }
 
         const query = searchTerm.toLowerCase().trim();
-        const searchResults: number[] = index.search(query, { limit: 15 });
+        const searchResults = index.search(query, { limit: 15 }) as number[];
         results = searchResults.map((idx) => allData[idx]).filter(Boolean);
         selectedIndex = 0;
     });

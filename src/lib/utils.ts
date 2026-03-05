@@ -1,5 +1,10 @@
-export function formatDate(date: any) {
+const dateCache = new Map<string, string>();
+
+export function formatDate(date: string | number | Date | null | undefined): string {
     if (!date) return "";
+
+    const cacheKey = String(date);
+    if (dateCache.has(cacheKey)) return dateCache.get(cacheKey)!;
 
     let d: Date;
     if (typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -7,16 +12,19 @@ export function formatDate(date: any) {
         const [year, month, day] = date.split("-").map(Number);
         d = new Date(year, month - 1, day);
     } else {
-        d = new Date(date);
+        d = new Date(date as any);
     }
 
-    if (isNaN(d.getTime())) return date;
+    if (isNaN(d.getTime())) return String(date);
 
-    return d.toLocaleDateString("es-ES", {
+    const formatted = d.toLocaleDateString("es-ES", {
         year: "numeric",
         month: "long",
         day: "numeric",
     });
+
+    dateCache.set(cacheKey, formatted);
+    return formatted;
 }
 
 /**
