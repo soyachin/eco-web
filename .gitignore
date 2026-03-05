@@ -37,7 +37,7 @@ result-*
 .idea/
 *.swp
 *.swo
-
+RULES.md
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
