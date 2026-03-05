@@ -38,6 +38,7 @@ result-*
 *.swp
 *.swo
 RULES.md
+TASKS.md
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
