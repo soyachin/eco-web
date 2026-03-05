@@ -2,13 +2,14 @@
   import "../app.css";
   import ThemeToggle from "$lib/components/ThemeToggle.svelte";
   import LinkPreview from "$lib/components/LinkPreview.svelte";
-  import { onMount } from "svelte";
   import { page } from "$app/state";
   import { sortBacklinksWithFallback } from "$lib/utils";
   import type { PreviewState, LayoutData } from "$lib/types";
+  import type { Component } from "svelte";
+  import { onMount, onDestroy } from "svelte";
 
-  let GraphView = $state<any>(null);
-  let Search = $state<any>(null);
+  let GraphView = $state<Component<any> | null>(null);
+  let Search = $state<Component<any> | null>(null);
 
   onMount(async () => {
     const [gv, s] = await Promise.all([
@@ -19,7 +20,10 @@
     Search = s.default;
   });
 
-  let { data, children }: { data: LayoutData; children: any } = $props();
+  let {
+    data,
+    children,
+  }: { data: LayoutData; children: import("svelte").Snippet } = $props();
 
   // --- LinkPreview Logic ---
   let preview = $state<PreviewState>({
@@ -28,7 +32,11 @@
     y: 0,
     note: null,
   });
-  let previewTimer: any;
+  let previewTimer: ReturnType<typeof setTimeout>;
+
+  onDestroy(() => {
+    clearTimeout(previewTimer);
+  });
 
   function handleMouseOver(e: MouseEvent) {
     const target = (e.target as HTMLElement).closest("a");
@@ -36,7 +44,9 @@
 
     if (href?.startsWith("/") && href.length > 1) {
       const slug = href.slice(1).split(/[?#]/)[0];
-      const note = data.notes.find((n) => n.slug === slug);
+      const note = data.notes.find(
+        (n: import("$lib/types").Note) => n.slug === slug,
+      );
 
       if (note) {
         clearTimeout(previewTimer);
@@ -54,9 +64,8 @@
 
   const currentSlug = $derived(page.params.slug ?? "");
   const graphLinks = $derived(
-    Object.entries(data.backlinksMap || {}).flatMap(
-      ([target, sources]: [string, any]) =>
-        sources.map((s: any) => ({ source: s.slug, target })),
+    Object.entries(data.backlinksMap || {}).flatMap(([target, sources]) =>
+      sources.map((s) => ({ source: s.slug, target })),
     ),
   );
 
@@ -64,7 +73,10 @@
   const isMdNotePage = $derived(!!page.data?.content);
   const shouldShowExplorer = $derived(isMdNotePage || isHomePage);
   const shouldShowGraphAndBacklinks = $derived(
-    (currentSlug && data.notes.some((n) => n.slug === currentSlug)) ||
+    (currentSlug &&
+      data.notes.some(
+        (n: import("$lib/types").Note) => n.slug === currentSlug,
+      )) ||
       isHomePage,
   );
 
@@ -75,11 +87,11 @@
   });
 
   let isSearchOpen = $state(false);
-  
+
   // Asegurar que el contenido esté siempre centrado
   onMount(() => {
     // Aplicar estilos críticos para responsive
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       @media (max-width: 1024px) {
         .content-area {

@@ -1,13 +1,14 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { formatDate, sortBacklinksWithFallback } from "$lib/utils";
-  import type { Note, NoteMeta, Backlink, LayoutData } from "$lib/types";
+  import type { NoteMeta, LayoutData } from "$lib/types";
+  import type { Component } from "svelte";
 
   let {
     data,
   }: {
     data: LayoutData & {
-      content: any;
+      content: Component;
       meta: NoteMeta;
     };
   } = $props();

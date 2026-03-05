@@ -1,18 +1,17 @@
-export const load = (async ({ params, parent }: any) => {
+import type { TagPageData, Note } from "$lib/types";
+import { sortNotesByDateDesc } from "$lib/utils";
+import type { PageLoad } from "./$types";
+
+export const load: PageLoad = async ({ params, parent }) => {
     const { notes } = await parent();
     const { tag } = params;
 
-    // Filtrar notas por tag y por fecha
-    const filteredNotes = (notes as any[])
-        .filter((note) => note.meta?.tags?.includes(tag))
-        .sort((a, b) => {
-            const dateA = a.meta?.date ? new Date(a.meta.date).getTime() : 0;
-            const dateB = b.meta?.date ? new Date(b.meta.date).getTime() : 0;
-            return dateB - dateA;
-        });
+    // Filtrar notas por tag y usar el utility de ordenamiento
+    const taggedNotes = (notes as Note[]).filter((note) => note.meta?.tags?.includes(tag));
+    const filteredNotes = sortNotesByDateDesc(taggedNotes);
 
     return {
         tag,
         notes: filteredNotes,
-    };
-}) as any;
+    } as TagPageData;
+};
