@@ -4,8 +4,8 @@
   import LinkPreview from "$lib/components/LinkPreview.svelte";
   import { onMount } from "svelte";
   import { page } from "$app/state";
-  import { slugify, sortBacklinksWithFallback } from "$lib/utils";
-  import type { Note, PreviewState, LayoutData } from "$lib/types";
+  import { sortBacklinksWithFallback } from "$lib/utils";
+  import type { PreviewState, LayoutData } from "$lib/types";
 
   let GraphView = $state<any>(null);
   let Search = $state<any>(null);
@@ -73,6 +73,8 @@
     const raw = data.backlinksMap?.[currentSlug] ?? [];
     return sortBacklinksWithFallback(raw).slice(0, 10);
   });
+
+  let isSearchOpen = $state(false);
 </script>
 
 <svelte:window on:mouseover={handleMouseOver} on:mouseout={handleMouseOut} />
@@ -84,7 +86,26 @@
     </a>
 
     <div class="nav-links">
-      <a href="/about" class="nav-item">whoami</a>
+      <button
+        class="nav-item lg:hidden p-2 -mr-2"
+        onclick={() => (isSearchOpen = true)}
+        aria-label="Search"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-search"
+          ><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg
+        >
+      </button>
+      <a href="/about" class="nav-item hidden sm:inline-block">whoami</a>
       <ThemeToggle />
     </div>
   </div>
@@ -92,8 +113,8 @@
 
 <main class="main-layout">
   <div class="grid-container">
-    <!-- Columna Izquierda: Explorador -->
-    <aside class="sidebar-left">
+    <!-- Columna Izquierda: Explorador (Hidden on Mobile) -->
+    <aside class="sidebar sidebar-left">
       {#if shouldShowExplorer}
         <div class="sticky-sidebar">
           <h3 class="sidebar-title">Explorar</h3>
@@ -112,51 +133,66 @@
       <div class="content-wrapper">
         {@render children()}
       </div>
+
+      <!-- Mobile-only section for Backlinks (No Graph) -->
+      <div class="mobile-complement lg:hidden mt-12 space-y-8">
+        {#if shouldShowGraphAndBacklinks}
+          {@render sideContent(true)}
+        {/if}
+      </div>
     </div>
 
-    <!-- Columna Derecha: Grafo y Backlinks -->
-    <aside class="sidebar-right">
-      <div class="sticky-sidebar flex flex-col gap-8">
+    <!-- Columna Derecha: Grafo y Backlinks (Desktop) -->
+    <aside class="sidebar sidebar-right">
+      <div class="sticky-sidebar">
         {#if shouldShowGraphAndBacklinks}
-          <!-- Grafo -->
-          <section class="card">
-            <h3 class="card-title">
-              {isHomePage ? "Jardín" : "Interconexiones"}
-            </h3>
-            <div class="graph-wrapper">
-              {#if GraphView}
-                <GraphView
-                  nodes={data.notes}
-                  links={graphLinks}
-                  currentSlug={isHomePage ? "" : currentSlug}
-                  isGlobal={isHomePage}
-                />
-              {/if}
-            </div>
-          </section>
-
-          <!-- Backlinks -->
-          {#if !isHomePage && backlinks.length > 0}
-            <section class="card overflow-hidden">
-              <h3 class="card-title">Enlazado en</h3>
-              <ul class="backlinks-list custom-scrollbar">
-                {#each backlinks as backlink}
-                  <li>
-                    <a href="/{backlink.slug}" class="backlink-item group">
-                      <span class="backlink-text"
-                        >{backlink.meta?.title ?? backlink.slug}</span
-                      >
-                    </a>
-                  </li>
-                {/each}
-              </ul>
-            </section>
-          {/if}
+          {@render sideContent(false)}
         {/if}
       </div>
     </aside>
   </div>
 </main>
+
+{#snippet sideContent(isMobile: boolean)}
+  <div class="flex flex-col gap-8">
+    <!-- Grafo (Hidden on Mobile as requested) -->
+    {#if !isMobile}
+      <section class="card">
+        <h3 class="card-title">
+          {isHomePage ? "Jardín" : "Interconexiones"}
+        </h3>
+        <div class="graph-wrapper">
+          {#if GraphView}
+            <GraphView
+              nodes={data.notes}
+              links={graphLinks}
+              currentSlug={isHomePage ? "" : currentSlug}
+              isGlobal={isHomePage}
+            />
+          {/if}
+        </div>
+      </section>
+    {/if}
+
+    <!-- Backlinks -->
+    {#if !isHomePage && backlinks.length > 0}
+      <section class="card overflow-hidden">
+        <h3 class="card-title">Enlazado en</h3>
+        <ul class="backlinks-list custom-scrollbar">
+          {#each backlinks as backlink}
+            <li>
+              <a href="/{backlink.slug}" class="backlink-item group">
+                <span class="backlink-text"
+                  >{backlink.meta?.title ?? backlink.slug}</span
+                >
+              </a>
+            </li>
+          {/each}
+        </ul>
+      </section>
+    {/if}
+  </div>
+{/snippet}
 
 <LinkPreview
   active={preview.active}
@@ -166,7 +202,7 @@
 />
 
 {#if Search}
-  <Search />
+  <Search bind:isOpen={isSearchOpen} />
 {/if}
 
 <style lang="postcss">
@@ -175,15 +211,15 @@
   :global(html) {
     scroll-behavior: smooth;
     overflow-y: scroll;
-    background-color: var(--gruv-bg);
+    background-color: var(--bg-primary);
   }
 
   .navbar {
-    @apply sticky top-0 z-50 w-full border-b border-border-subtle bg-background/70 backdrop-blur-md;
+    @apply sticky top-0 z-40 w-full border-b border-border-subtle bg-background/70 backdrop-blur-md;
   }
 
   .navbar-container {
-    @apply mx-auto flex max-w-3xl items-center justify-between px-6 h-(--nav-height);
+    @apply mx-auto flex max-w-(--layout-max-width) items-center justify-between px-6 h-(--nav-height);
   }
 
   .logo {
@@ -199,18 +235,14 @@
   }
 
   .main-layout {
-    @apply mx-auto max-w-[1400px] px-4 sm:px-6;
+    @apply mx-auto max-w-(--layout-max-width) px-4 sm:px-6;
   }
 
   .grid-container {
     @apply grid grid-cols-1 lg:grid-cols-[var(--sidebar-width)_1fr_var(--sidebar-width)] gap-8 xl:gap-12;
   }
 
-  .sidebar-left {
-    @apply hidden lg:block py-(--page-top-margin);
-  }
-
-  .sidebar-right {
+  .sidebar {
     @apply hidden lg:block py-(--page-top-margin);
   }
 

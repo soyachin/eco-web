@@ -4,15 +4,18 @@
     import { goto } from "$app/navigation";
     import { Search as SearchIcon } from "lucide-svelte";
 
-    let { isSidebar = false } = $props();
+    let { isSidebar = false, isOpen = $bindable(false) } = $props();
 
     let searchTerm = $state("");
-    let isOpen = $state(false);
     let results = $state<any[]>([]);
     let selectedIndex = $state(0);
     let index = $state<any>(null);
     let allData = $state<any[]>([]);
     let searchInput: HTMLInputElement | undefined = $state();
+
+    export function toggleVisibility() {
+        isOpen = !isOpen;
+    }
 
     onMount(() => {
         let cleanup: (() => void) | undefined;
@@ -22,11 +25,6 @@
                 const res = await fetch("/api/search.json");
                 if (!res.ok) throw new Error("Search index not found");
                 allData = await res.json();
-
-                if (!Array.isArray(allData)) {
-                    console.error("Search data is not an array:", allData);
-                    allData = [];
-                }
 
                 index = new Index({ tokenize: "forward", cache: true });
                 allData.forEach((item, i) => {
@@ -68,45 +66,8 @@
         }
 
         const query = searchTerm.toLowerCase().trim();
-        const searchResults: number[] = index.search(query, { limit: 20 });
-        const mappedResults = searchResults
-            .map((idx) => allData[idx])
-            .filter(Boolean);
-
-        // Lógica de priorización de Tags
-        const matchedTag = allData
-            .flatMap((d) => d.tags || [])
-            .find((t) => t.toLowerCase() === query);
-
-        if (matchedTag) {
-            const tagPage = allData.find(
-                (d) =>
-                    d.slug.toLowerCase() === query ||
-                    d.title.toLowerCase() === query,
-            );
-            const notesWithTag = allData.filter(
-                (d) =>
-                    (d.tags || []).some(
-                        (t: string) => t.toLowerCase() === query,
-                    ) && d.slug !== tagPage?.slug,
-            );
-
-            const prioritized = [];
-            if (tagPage) prioritized.push({ ...tagPage, isTagPage: true });
-            prioritized.push(
-                ...notesWithTag.map((n) => ({ ...n, isTagMatch: true })),
-            );
-
-            // Agregar otros resultados que no sean duplicados
-            const uniqueSlugs = new Set(prioritized.map((p) => p.slug));
-            prioritized.push(
-                ...mappedResults.filter((r) => !uniqueSlugs.has(r.slug)),
-            );
-
-            results = prioritized.slice(0, 15);
-        } else {
-            results = mappedResults;
-        }
+        const searchResults: number[] = index.search(query, { limit: 15 });
+        results = searchResults.map((idx) => allData[idx]).filter(Boolean);
         selectedIndex = 0;
     });
 
@@ -142,7 +103,6 @@
             <div
                 class="search-modal"
                 onclick={(e) => e.stopPropagation()}
-                onkeydown={null}
                 role="none"
             >
                 {@render searchUI()}
@@ -164,9 +124,7 @@
                 bind:value={searchTerm}
                 onkeydown={handleKeydown}
                 type="text"
-                placeholder={isSidebar
-                    ? "Buscar notas..."
-                    : "Busca por nombre o #tag..."}
+                placeholder={isSidebar ? "Buscar..." : "Busca notas o #tags..."}
                 class="search-input {isSidebar ? 'text-sm' : 'text-lg'}"
             />
             {#if !isSidebar}
@@ -188,13 +146,6 @@
                             : ''}"
                     >
                         <div class="result-title-row">
-                            {#if res.isTagPage}
-                                <span class="badge badge-tag-page"
-                                    >Tag Page</span
-                                >
-                            {:else if res.isTagMatch}
-                                <span class="badge badge-tag">Tag</span>
-                            {/if}
                             <span
                                 class="result-title {isSidebar
                                     ? 'text-sm'
@@ -209,7 +160,7 @@
                             >
                                 <span class="slug-path">/{res.slug}</span>
                                 <div class="tags-row">
-                                    {#each res.tags as tag}
+                                    {#each res.tags || [] as tag}
                                         <span class="tag-pill">{tag}</span>
                                     {/each}
                                 </div>
@@ -222,7 +173,7 @@
             <div class="no-results">No hay resultados</div>
         {/if}
 
-        {#if !isSidebar}
+        {#if !isSidebar && results.length > 0}
             <footer class="search-footer">
                 <span><b>↑↓</b> navegar</span>
                 <span><b>Enter</b> abrir</span>
@@ -233,22 +184,22 @@
 
 <style lang="postcss">
     @reference "../../app.css";
+
     .search-overlay {
-        @apply fixed inset-0 z-100 flex items-start justify-center pt-[15vh] px-4 backdrop-blur-sm bg-black/40;
+        @apply fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] px-4 backdrop-blur-sm bg-black/40;
     }
 
     .search-modal {
-        @apply w-full max-w-2xl bg-[#1d2021] border border-white/10 rounded-xl shadow-2xl overflow-hidden;
+        @apply w-full max-w-2xl bg-background-soft border border-border-subtle rounded-xl shadow-2xl overflow-hidden;
     }
 
     .search-sidebar-container {
-        @apply w-full border rounded-lg overflow-hidden flex flex-col;
+        @apply w-full border border-border-subtle rounded-lg overflow-hidden flex flex-col;
         background-color: color-mix(
             in srgb,
             var(--bg-secondary) 20%,
             transparent
         );
-        border-color: color-mix(in srgb, var(--bg-tertiary) 30%, transparent);
     }
 
     .search-wrapper {
@@ -256,7 +207,7 @@
     }
 
     .search-header {
-        @apply flex items-center gap-3 p-3 border-b border-background-soft/50 bg-background-soft/50;
+        @apply flex items-center gap-3 p-3 border-b border-border-subtle bg-background-soft/50;
     }
 
     :global(.search-icon) {
@@ -265,9 +216,6 @@
 
     .search-input {
         @apply flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted/40;
-        &::placeholder {
-            @apply italic;
-        }
     }
 
     .kbd-hint {
@@ -287,16 +235,6 @@
 
     .result-title-row {
         @apply flex items-center gap-2;
-    }
-
-    .badge {
-        @apply text-[9px] px-1 py-0.5 rounded uppercase font-bold;
-        &.badge-tag-page {
-            @apply bg-brand-muted/30 text-brand;
-        }
-        &.badge-tag {
-            @apply bg-white/10 border border-white/5;
-        }
     }
 
     .result-meta {
@@ -320,7 +258,7 @@
     }
 
     .search-footer {
-        @apply p-2 bg-white/2 border-t border-white/5 flex gap-4 text-[9px] text-muted/60 font-mono;
+        @apply p-2 bg-white/2 border-t border-border-subtle flex gap-4 text-[9px] text-muted/60 font-mono;
         b {
             @apply text-muted;
         }

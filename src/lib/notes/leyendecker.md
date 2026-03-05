@@ -18,7 +18,7 @@ uno de los artistas más prominentes de la historia del arte de los estados unid
 
 sin embargo, no se suele hablar de su hermano, F.X. Leyendecker, que también fue un artista de renombre mundial y participó en casi las mismas revistas y periódicos. estudiaron juntos en la Acadèmie Julian en París y en 1897 regresaron su "natal" chicago.
 
-<div class="grid grid-cols-2 gap-7">
+<div class="grid-responsive cols-2 mb-10">
   <Image 
     src="https://i.imgur.com/FNBNSeC.png" 
     alt="frank leyendecker in his studio" 
@@ -60,7 +60,7 @@ para algo más tangible de nuestros años, también es curioso recalcar que much
     <footer>Illustrative Rendering in Team Fortress 2 <span class="text-xs">Jason Mitchell∗, Valve, Moby Francke†, Valve, Dhabih Eng‡, Valve</span></footer>
 </blockquote>
 
-<div class="grid grid-cols-3 gap-7">
+<div class="grid-responsive cols-3 mb-10">
     <Image
         src="https://www.teamfortress.com/images/artwork/concept/med11.jpg"
         alt="concept art de medic"
