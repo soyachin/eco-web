@@ -27,19 +27,6 @@
     export let className = "";
     export let zoom = true;
 
-    // Loading state
-    let isLoading = true;
-    let hasError = false;
-
-    function handleLoad() {
-        isLoading = false;
-    }
-
-    function handleError() {
-        isLoading = false;
-        hasError = true;
-    }
-
     const alignStyles: Record<string, string> = {
         left: "items-start ml-0 mr-auto",
         center: "items-center mx-auto",
@@ -81,13 +68,6 @@
             ? `aspect-ratio: ${aspectRatio};`
             : ''}"
     >
-        <!-- Loading spinner - brand color animation -->
-        {#if isLoading && !hasError}
-            <div class="absolute inset-0 flex items-center justify-center z-10">
-                <div class="w-8 h-8 border-3 border-brand/20 border-t-brand rounded-full animate-spin"></div>
-            </div>
-        {/if}
-
         <img
             {src}
             {alt}
@@ -95,11 +75,9 @@
                 ? 'group-hover:scale-110'
                 : ''} {height !== 'auto' || aspectRatio !== 'auto'
                 ? 'absolute inset-0 h-full'
-                : 'relative h-auto'} {isLoading ? 'opacity-0' : 'opacity-100'}"
+                : 'relative h-auto'}"
             style="object-fit: {fit}; object-position: {position};"
             loading="lazy"
-            on:load={handleLoad}
-            on:error={handleError}
         />
 
         <!-- Hover overlay -->
