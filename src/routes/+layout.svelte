@@ -167,7 +167,7 @@
           ><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg
         >
       </button>
-      <a href="/about" class="nav-item hidden sm:inline-block">whoami</a>
+      <a href="/about" class="nav-item text-s hidden sm:inline-block">whoami</a>
       <ThemeToggle />
     </div>
   </div>
@@ -296,7 +296,7 @@
   }
 
   .logo {
-    @apply flex items-center gap-2 font-mono font-bold text-brand transition-colors hover:text-brand-muted text-xl;
+    @apply flex items-center gap-2 font-syne font-bold text-brand transition-colors hover:text-brand-muted text-2xl;
   }
 
   .nav-links {
@@ -324,11 +324,11 @@
   }
 
   .sidebar-title {
-    @apply text-[13px] font-mono text-muted uppercase tracking-widest mb-4;
+    @apply text-[12px] font-mono text-muted uppercase tracking-widest mb-4;
   }
 
   .sidebar-hint {
-    @apply mt-4 text-[13px] font-mono text-muted leading-relaxed italic;
+    @apply mt-4 text-[12px] font-mono text-muted leading-relaxed italic;
     .highlight {
       @apply text-brand/80;
     }
@@ -349,7 +349,7 @@
   }
 
   .card-title {
-    @apply text-[12px] font-mono text-muted uppercase tracking-widest mb-3 border-b border-border-subtle pb-2;
+    @apply text-[11px] font-mono text-muted uppercase tracking-widest mb-3 border-b border-border-subtle pb-2;
   }
 
   .graph-wrapper {

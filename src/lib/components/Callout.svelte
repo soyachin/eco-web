@@ -48,7 +48,7 @@
 
 <div class="callout" data-callout={cleanType}>
   <header class="callout-header">
-    <IconComponent size={20} class="callout-icon" />
+    <IconComponent size={18} class="callout-icon" />
     <span class="callout-title-text">{title || cleanType}</span>
   </header>
   <div class="callout-content">
@@ -59,7 +59,7 @@
 <style lang="postcss">
   @reference "../../app.css";
   .callout {
-    @apply my-6 rounded-lg border-l-4 overflow-hidden bg-background-soft/50 border-l-brand;
+    @apply my-4 rounded-lg border-l-4 overflow-hidden bg-background-soft/50 border-l-brand;
 
     &[data-callout="info"] {
       border-left-color: var(--color-blue);
@@ -90,7 +90,7 @@
   }
 
   .callout-content {
-    @apply px-4 py-2 text-muted;
+    @apply px-4 py-0 mb-1 text-muted;
     :global(p) {
       @apply my-2;
     }
