@@ -145,36 +145,26 @@
                     ? 'max-h-[300px]'
                     : 'max-h-[60vh]'} custom-scrollbar"
             >
-                {#each results as res, i}
-                    <button
-                        onclick={() => navigate(res.slug)}
-                        class="result-item {i === selectedIndex
-                            ? 'selected'
-                            : ''}"
-                    >
-                        <div class="result-title-row">
-                            <span
-                                class="result-title {isSidebar
-                                    ? 'text-sm'
-                                    : 'font-bold'}">{res.title}</span
-                            >
-                        </div>
-                        {#if !isSidebar}
-                            <div
-                                class="result-meta {i === selectedIndex
-                                    ? 'text-white/80'
-                                    : 'text-muted'}"
-                            >
-                                <span class="slug-path">/{res.slug}</span>
-                                <div class="tags-row">
-                                    {#each res.tags || [] as tag}
-                                        <span class="tag-pill">{tag}</span>
-                                    {/each}
-                                </div>
-                            </div>
-                        {/if}
-                    </button>
-                {/each}
+{#each results as res, i}
+    <button
+        onclick={() => navigate(res.slug)}
+        class="result-item {i === selectedIndex ? 'selected' : ''}"
+    >
+        <div class="result-row">
+            <div class="result-main-info">
+                <span class="result-title font-bold">{res.title}</span>
+                
+                <div class="tags-row">
+                    {#each res.tags || [] as tag}
+                        <span class="tag-pill">{tag}</span>
+                    {/each}
+                </div>
+            </div>
+
+
+        </div>
+    </button>
+{/each}
             </div>
         {:else if searchTerm.trim() !== ""}
             <div class="no-results">No hay resultados</div>
@@ -238,18 +228,6 @@
         &.selected {
             @apply bg-brand/20 text-foreground;
         }
-    }
-
-    .result-title-row {
-        @apply flex items-center gap-2;
-    }
-
-    .result-meta {
-        @apply flex gap-2 text-[10px];
-    }
-
-    .slug-path {
-        @apply opacity-50;
     }
 
     .tags-row {

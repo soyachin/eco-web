@@ -29,16 +29,17 @@
     </h1>
 
     <p class="text-center max-w-prose px-6 leading-relaxed">
-        ecomecanico es el proyecto personal que reune mi pasión por el arte y la ciencia. 
+        <b>ecomecanico </b> es el proyecto personal que reune mi pasión por el <b>arte y la ciencia</b>. 
         este es un espacio donde comparto mis aficiones, descubrimientos y proyectos 
-        relacionados con el arte, ciencia y tecnología. por ahora no hay mucho por aquí 
+        relacionados con el arte, ciencia y tecnología.
+
+    por ahora no hay mucho por aquí 
         pero espero que disfrutes tu estancia y encuentres algo útil.
     </p>
 
-    <!-- <div class="whitespace-pre font-main"> -->
-    <!--   {@html ecomecanico} -->
-    <!---->
-    <!-- </div> -->
+    <div class="whitespace-pre-line font-main justify-center content-center wobble-letter">
+      {@html ecomecanico} 
+    </div>
 </article>
 
 <style>
