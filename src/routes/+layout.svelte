@@ -3,15 +3,32 @@
   import ThemeToggle from "$lib/components/ThemeToggle.svelte";
   import LinkPreview from "$lib/components/LinkPreview.svelte";
   import { page } from "$app/state";
+  import { browser } from "$app/environment";
   import { sortBacklinksWithFallback } from "$lib/utils";
   import type { PreviewState, LayoutData } from "$lib/types";
   import type { Component } from "svelte";
   import { onMount, onDestroy } from "svelte";
 
+  // Estado para controlar flashing
+  let isHydrated = $state(false);
+
+  // Establecer tema oscuro como default
+  $effect(() => {
+    if (typeof document !== 'undefined') {
+      const theme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+  });
+
+  onMount(() => {
+    isHydrated = true;
+  });
+
   let GraphView = $state<Component<any> | null>(null);
   let Search = $state<Component<any> | null>(null);
 
   onMount(async () => {
+    // Cargar componentes dinámicamente
     const [gv, s] = await Promise.all([
       import("$lib/components/GraphView.svelte"),
       import("$lib/components/Search.svelte"),
@@ -87,30 +104,44 @@
   });
 
   let isSearchOpen = $state(false);
-
-  // Asegurar que el contenido esté siempre centrado
-  onMount(() => {
-    // Aplicar estilos críticos para responsive
-    const style = document.createElement("style");
-    style.textContent = `
-      @media (max-width: 1024px) {
-        .content-area {
-          grid-column: 1 / -1 !important;
-          max-width: 100% !important;
-        }
-        .content-wrapper {
-          margin: 0 auto !important;
-          max-width: min(100% - 2rem, 800px) !important;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-  });
 </script>
 
 <svelte:window on:mouseover={handleMouseOver} on:mouseout={handleMouseOut} />
 
-<nav class="navbar">
+<!-- Estilos para evitar flashing -->
+<svelte:head>
+  <style>
+    /* Asegurar tema oscuro inmediato */
+    html[data-theme="dark"] {
+      background-color: var(--bg-primary);
+      color: var(--fg-primary);
+    }
+    
+    /* Transición suave */
+    .layout-container {
+      transition: opacity 0.3s ease;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .grid-container {
+        grid-template-columns: 1fr !important;
+      }
+      
+      .content-area {
+        grid-column: 1 !important;
+        width: 100%;
+      }
+      
+      .sidebar {
+        display: none !important;
+      }
+    }
+  </style>
+</svelte:head>
+
+<div class="layout-container {isHydrated ? 'opacity-100' : 'opacity-0'}">
+  <nav class="navbar">
   <div class="navbar-container">
     <a href="/" class="logo">
       <span>~/ecomecanico</span>
@@ -136,7 +167,7 @@
           ><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg
         >
       </button>
-      <a href="/about" class="nav-item hidden sm:inline-block">whoami</a>
+      <a href="/about" class="nav-item text-s hidden sm:inline-block">whoami</a>
       <ThemeToggle />
     </div>
   </div>
@@ -235,6 +266,7 @@
 {#if Search}
   <Search bind:isOpen={isSearchOpen} />
 {/if}
+</div>
 
 <style lang="postcss">
   @reference "../app.css";
@@ -245,8 +277,18 @@
     background-color: var(--bg-primary);
   }
 
+  /* Unificar fondos Gruvbox para evitar franjas */
+  :global(body), 
+  .navbar, 
+  .main-layout, 
+  .content-area, 
+  .grid-container {
+    background-color: var(--bg-primary) !important;
+  }
+
   .navbar {
-    @apply sticky top-0 z-40 w-full border-b border-border-subtle bg-background/70 backdrop-blur-md;
+    @apply sticky top-0 z-40 w-full border-b border-border-subtle backdrop-blur-md;
+    background-color: var(--bg-primary) !important;
   }
 
   .navbar-container {
@@ -254,7 +296,7 @@
   }
 
   .logo {
-    @apply flex items-center gap-2 font-mono font-bold text-brand transition-colors hover:text-brand-muted text-xl;
+    @apply flex items-center gap-2 font-syne font-bold text-brand transition-colors hover:text-brand-muted text-2xl;
   }
 
   .nav-links {
@@ -282,11 +324,11 @@
   }
 
   .sidebar-title {
-    @apply text-[13px] font-mono text-muted uppercase tracking-widest mb-4;
+    @apply text-[12px] font-mono text-muted uppercase tracking-widest mb-4;
   }
 
   .sidebar-hint {
-    @apply mt-4 text-[13px] font-mono text-muted leading-relaxed italic;
+    @apply mt-4 text-[12px] font-mono text-muted leading-relaxed italic;
     .highlight {
       @apply text-brand/80;
     }
@@ -302,12 +344,12 @@
 
   .card {
     @apply rounded-xl border p-4;
-    background-color: color-mix(in srgb, var(--bg-secondary) 20%, transparent);
-    border-color: color-mix(in srgb, var(--bg-tertiary), transparent);
+    background-color: color-mix(in srgb, var(--bg-primary) 10%, transparent);
+    border-color: color-mix(in srgb, var(--bg-primary) 30%, transparent);
   }
 
   .card-title {
-    @apply text-[12px] font-mono text-muted uppercase tracking-widest mb-3 border-b border-border-subtle pb-2;
+    @apply text-[11px] font-mono text-muted uppercase tracking-widest mb-3 border-b border-border-subtle pb-2;
   }
 
   .graph-wrapper {

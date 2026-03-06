@@ -4,6 +4,8 @@
      * Robust flexible image component. Uses absolute positioning to ensure
      * object-fit works correctly even inside complex CSS environments like .prose.
      */
+    import { borderRadius, boxShadow, defaults } from "$lib/styles";
+    
     export let src: string;
     export let alt = "";
     export let caption = "";
@@ -27,30 +29,23 @@
     export let className = "";
     export let zoom = true;
 
+    // Loading state
+    let isLoading = true;
+    let hasError = false;
+
+    function handleLoad() {
+        isLoading = false;
+    }
+
+    function handleError() {
+        isLoading = false;
+        hasError = true;
+    }
+
     const alignStyles: Record<string, string> = {
         left: "items-start ml-0 mr-auto",
         center: "items-center mx-auto",
         right: "items-end ml-auto mr-0",
-    };
-
-    const roundedStyles: Record<string, string> = {
-        none: "rounded-none",
-        sm: "rounded-sm",
-        md: "rounded-md",
-        lg: "rounded-lg",
-        xl: "rounded-xl",
-        "2xl": "rounded-2xl",
-        "3xl": "rounded-3xl",
-        full: "rounded-full",
-    };
-
-    const shadowStyles: Record<string, string> = {
-        none: "shadow-none",
-        sm: "shadow-sm",
-        md: "shadow-md",
-        lg: "shadow-lg",
-        xl: "shadow-xl",
-        "2xl": "shadow-2xl",
     };
 </script>
 
@@ -60,14 +55,19 @@
     style="width: {width}; max-width: 100%;"
 >
     <div
-        class="relative w-full overflow-hidden border border-white/10 bg-secondary/20 {roundedStyles[
-            rounded
-        ] || 'rounded-xl'} {shadowStyles[shadow] || 'shadow-md'} group"
+        class="relative w-full overflow-hidden border border-white/10 bg-secondary/20 {borderRadius[rounded] || defaults.rounded} {boxShadow[shadow] || defaults.shadow} group"
         style="{height !== 'auto' ? `height: ${height};` : ''} {aspectRatio !==
         'auto'
             ? `aspect-ratio: ${aspectRatio};`
             : ''}"
     >
+        <!-- Loading spinner - brand color animation -->
+        {#if isLoading && !hasError}
+            <div class="absolute inset-0 flex items-center justify-center z-10">
+                <div class="w-8 h-8 border-3 border-brand/20 border-t-brand rounded-full animate-spin"></div>
+            </div>
+        {/if}
+
         <img
             {src}
             {alt}
@@ -75,9 +75,11 @@
                 ? 'group-hover:scale-110'
                 : ''} {height !== 'auto' || aspectRatio !== 'auto'
                 ? 'absolute inset-0 h-full'
-                : 'relative h-auto'}"
+                : 'relative h-auto'} {isLoading ? 'opacity-0' : 'opacity-100'}"
             style="object-fit: {fit}; object-position: {position};"
             loading="lazy"
+            on:load={handleLoad}
+            on:error={handleError}
         />
 
         <!-- Hover overlay -->

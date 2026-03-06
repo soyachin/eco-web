@@ -4,10 +4,10 @@
   let theme = $state("dark");
 
   onMount(() => {
-    // Sincronizar con el tema ya aplicado en app.html
+    // Tema oscuro como default
     const currentTheme = document.documentElement.getAttribute('data-theme') || 
                          localStorage.getItem("theme") || 
-                         (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+                         "dark";
     
     applyTheme(currentTheme);
   });

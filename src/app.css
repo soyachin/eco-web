@@ -1,120 +1,49 @@
+/* --- 1. CORE IMPORTS --- */
+@import url('https://fonts.googleapis.com/css2?family=Syne+Tactile&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Victor+Mono:ital,wght@0,100..700;1,100..700&display=swap');
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* --- 0. CUSTOM FONTS --- */
-@font-face {
-  font-family: 'Serious Shann';
-  src: url('/SeriousShanns-Regular.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* --- 1. LAYOUT FIXES --- */
-/* Centrar contenido en todos los tamaños de pantalla */
-.main-layout {
-  width: 100%;
-  max-width: var(--layout-max-width);
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: max(1rem, env(safe-area-inset-left));
-  padding-right: max(1rem, env(safe-area-inset-right));
-}
-
-.content-wrapper {
-  width: 100%;
-  max-width: var(--main-content-max-width);
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Asegurar que el contenido principal siempre esté centrado */
-@media (max-width: 1024px) {
-  .grid-container {
-    grid-template-columns: 1fr !important;
-  }
+/* --- 2. TAILWIND v4 THEME CONFIG --- */
+@theme {
+  --font-syne: "Syne Tactile", system-ui, cursive;
+  --font-main: 'Serious Shann', ui-monospace, monospace;
   
-  .content-area {
-    grid-column: 1 !important;
-    width: 100%;
-  }
-  
-  .sidebar {
-    display: none !important;
-  }
+  /* Definimos Victor Mono como la fuente mono oficial */
+  --font-mono: "Victor Mono", monospace;
+  --font-victor: "Victor Mono", monospace;
+
+  /* Mapeo de fuentes por defecto */
+  --font-sans: var(--font-main);
+
+  /* Mapeo de colores Gruvbox */
+  --color-background: var(--bg-primary);
+  --color-background-soft: var(--bg-secondary);
+  --color-foreground: var(--fg-primary);
+  --color-brand: var(--brand-primary);
+  --color-brand-muted: var(--brand-secondary);
+  --color-accent: var(--brand-accent);
+  --color-muted: var(--fg-muted);
+  --color-border-subtle: var(--border-subtle);
 }
 
-@font-face {
-  font-family: 'Serious Shann';
-  src: url('/SeriousShanns-Italic.otf') format('opentype');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Serious Shann';
-  src: url('/SeriousShanns-Bold.otf') format('opentype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Serious Shann';
-  src: url('/SeriousShanns-BoldItalic.otf') format('opentype');
-  font-weight: 700;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Serious Shann';
-  src: url('/SeriousShanns-Light.otf') format('opentype');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Serious Shann';
-  src: url('/SeriousShanns-LightItalic.otf') format('opentype');
-  font-weight: 300;
-  font-style: italic;
-  font-display: swap;
-}
-
-/* --- 1. SEMANTIC DESIGN SYSTEM --- */
+/* --- 3. SEMANTIC DESIGN SYSTEM --- */
 :root {
-  /* Surface colors */
+  /* Gruvbox dark */
   --bg-primary: #282828;
-  /* gruvbox dark0 */
   --bg-secondary: #3c3836;
-  /* gruvbox dark1 */
   --bg-tertiary: #32302f;
-  /* gruvbox dark2 */
-
-  /* Text colors */
   --fg-primary: #ebdbb2;
   --fg-muted: #928374;
   --fg-dim: #7c6f64;
-
-  /* Brand colors (Pink/Purple focus) */
   --brand-primary: #d3869b;
-  /* gruvbox pastel purple */
   --brand-secondary: #b16286;
-  /* gruvbox muted magenta */
   --brand-accent: #8ec07c;
-  /* gruvbox green/aqua */
-
-  /* Helper colors */
   --color-red: #fb4934;
   --color-green: #b8bb26;
   --color-yellow: #fabd2f;
   --color-blue: #83a598;
   --color-orange: #fe8019;
-
-  /* Borders & Dividers */
   --border-subtle: #3c3836;
   --border-focus: #d3869b50;
 
@@ -124,55 +53,60 @@
   --sidebar-width: 260px;
   --main-content-max-width: 800px;
   --layout-max-width: 1200px;
-  --font-main: 'Serious Shann', ui-monospace, monospace;
 }
 
 :root[data-theme='light'] {
-  /* Gruvbox light (inverted) */
   --bg-primary: #fbf1c7;
-  /* light0 */
   --bg-secondary: #f2e5bc;
-  /* light1 */
   --bg-tertiary: #ebdbb2;
-  /* light2 */
-
   --fg-primary: #3c3836;
-  /* dark text on light bg */
   --fg-muted: #7c6f64;
   --fg-dim: #928374;
-
   --brand-primary: #b16286;
-  /* use a readable purple on light */
   --brand-secondary: #b16286;
   --brand-accent: #8ec07c;
-
   --color-red: #9d0006;
   --color-green: #79740e;
   --color-yellow: #b57614;
   --color-blue: #076678;
   --color-orange: #af3a03;
-
   --border-subtle: #ebdbb2;
   --border-focus: #8f3f7150;
 }
 
-/* --- 2. TAILWIND CONFIG --- */
-@theme {
-  --font-sans: var(--font-main);
-  --font-mono: var(--font-main);
-  --color-background: var(--bg-primary);
-  --color-background-soft: var(--bg-secondary);
-  --color-foreground: var(--fg-primary);
-
-  --color-brand: var(--brand-primary);
-  --color-brand-muted: var(--brand-secondary);
-  --color-accent: var(--brand-accent);
-
-  --color-muted: var(--fg-muted);
-  --color-border-subtle: var(--border-subtle);
+/* --- 4. CUSTOM FONT FACES (Serious Shann) --- */
+@font-face {
+  font-family: 'Serious Shann';
+  src: url('/SeriousShanns-Regular.otf') format('opentype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Serious Shann';
+  src: url('/SeriousShanns-Italic.otf') format('opentype');
+  font-weight: 400; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: 'Serious Shann';
+  src: url('/SeriousShanns-Bold.otf') format('opentype');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Serious Shann';
+  src: url('/SeriousShanns-BoldItalic.otf') format('opentype');
+  font-weight: 700; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: 'Serious Shann';
+  src: url('/SeriousShanns-Light.otf') format('opentype');
+  font-weight: 300; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Serious Shann';
+  src: url('/SeriousShanns-LightItalic.otf') format('opentype');
+  font-weight: 300; font-style: italic; font-display: swap;
 }
 
-/* --- 3. BASE RULES --- */
+/* --- 5. BASE & LAYOUT RULES --- */
 @layer base {
   body {
     background-color: var(--bg-primary);
@@ -182,8 +116,30 @@
     font-feature-settings: "cv02", "cv03", "cv04", "ss01";
   }
 
-  /* --- PREMIUM MARKDOWN STYLING --- */
+  /* Forzamos que todo lo que use mono tenga peso 300 */
+  code, pre, kbd, samp, .font-mono {
+    font-family: var(--font-victor) !important;
+    font-weight: 600 !important;
+  }
 
+  .font-syne { font-family: 'Syne Tactile', system-ui, cursive; }
+}
+
+.main-layout {
+  width: 100%;
+  max-width: var(--layout-max-width);
+  margin-inline: auto;
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: var(--main-content-max-width);
+  margin-inline: auto;
+}
+
+@layer base {
   .prose {
     color: var(--fg-primary) !important;
     font-family: var(--font-main) !important;
@@ -192,16 +148,37 @@
     font-size: 1.05rem !important;
   }
 
-  .prose p {
-    margin-top: 1.5em !important;
-    margin-bottom: 1.5em !important;
-  }
+/* Negritas: solo peso, sin cursiva */
+.prose i,
+.prose em {
+  color: var(--fg-primary) !important;
+  font-weight: 400 !important;
+  font-family: var(--font-victor) !important;
+  font-style: normal !important;
+  font-style: italic !important;  
+}
 
-  /* Headings */
-  .prose h1,
-  .prose h2,
-  .prose h3,
-  .prose h4 {
+/* Cursivas: peso normal, con estilo cursivo */
+.prose b,
+.prose strong {
+  color: var(--fg-primary) !important;
+  font-weight: 900 !important;
+  font-family: var(--font-victor) !important;
+  font-style: italic !important;
+}
+
+/* Negrita + Cursiva (Bold Italic): combina ambos */
+.prose strong em,
+.prose em strong,
+.prose b i,
+.prose i b {
+  font-weight: 900 !important;
+  font-style: italic !important;
+  font-family: var(--font-victor) !important;
+}
+  .prose p { margin-top: 1.5em !important; margin-bottom: 1.5em !important; }
+
+  .prose h1, .prose h2, .prose h3, .prose h4 {
     color: var(--brand-primary) !important;
     font-weight: 700 !important;
     letter-spacing: -0.02em !important;
@@ -209,331 +186,68 @@
     margin-bottom: 0.8em !important;
   }
 
-  /* Only reset top margin for the main title to ensure alignment */
-  .prose>header:first-child h1,
-  .prose>*:first-child h1,
-  h1.text-4xl:first-child {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
+  .prose h1 {
+    font-family: 'Syne Tactile', cursive !important;
+    font-weight: 500 !important;
   }
 
-  /* Lists */
-  .prose ul,
-  .prose ol {
-    padding-left: 1.5em !important;
-    margin-bottom: 1.5em !important;
+  .prose > *:first-child h1 { margin-top: 0 !important; }
+
+  /* Ajustes de listas */
+  .prose ul, .prose ol { padding-left: 1.5em !important; }
+  .prose ul > li::before {
+    content: "•"; color: var(--brand-primary); position: absolute; left: -1em; font-weight: bold;
   }
 
-  .prose ul>li {
-    list-style-type: none !important;
-    position: relative !important;
-    padding-left: 0.5em !important;
+  /* Ajuste de bloques de código en Prose */
+  .prose code {
+    color: var(--brand-accent) !important;
+    font-family: "Victor Mono", monospace !important;
+    font-weight: 300 !important;
+    font-size: 0.9em !important;
   }
 
-  .prose ul>li::before {
-    content: "•";
-    color: var(--brand-primary);
-    position: absolute;
-    left: -1em;
-    font-weight: bold;
-  }
-
-  .prose ol>li {
-    list-style-type: decimal !important;
-    padding-left: 0.5em !important;
-  }
-
-  .prose li {
-    margin-bottom: 0.5em !important;
-  }
-
-  /* Blockquotes */
-  .prose blockquote {
-    border-left: 4px solid var(--brand-primary) !important;
-    background-color: var(--bg-secondary) !important;
-    padding: 1.5em 2em !important;
-    border-radius: 0 0.5rem 0.5rem 0 !important;
-    color: var(--fg-primary) !important;
-    font-style: normal !important;
-    margin: 2em 0 !important;
-    font-size: 1.02em !important;
-  }
-
-  /* Horizontal Line */
-  .prose hr {
-    border: 0 !important;
-    height: 1px !important;
-    background: linear-gradient(to right, transparent, var(--border-subtle), transparent) !important;
-    margin: 3em 0 !important;
-  }
-
-  /* Code Blocks */
   .prose pre {
     background-color: var(--bg-secondary) !important;
     border: 1px solid var(--border-subtle) !important;
     border-radius: 0.75rem !important;
     padding: 1.5em !important;
-    overflow-x: auto !important;
-    margin: 1.5em 0 !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
   }
 
-  .prose code {
-    color: var(--brand-accent) !important;
-    background-color: transparent !important;
-    font-family: var(--font-main) !important;
-    font-size: 0.9em !important;
-  }
-
-  :not(pre)>code {
+  .prose blockquote {
+    border-left: 4px solid var(--brand-primary) !important;
     background-color: var(--bg-secondary) !important;
-    padding: 0.2em 0.4em !important;
-    border-radius: 4px !important;
-    white-space: nowrap !important;
-    border: 1px solid var(--border-subtle) !important;
-  }
-
-  /* Tables */
-  .prose table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-    margin: 2em 0 !important;
-  }
-
-  .prose th {
-    background-color: var(--bg-secondary) !important;
-    color: var(--brand-primary) !important;
-    font-weight: 700 !important;
-    text-align: left !important;
-    padding: 0.75rem 1rem !important;
-    border: 1px solid var(--border-subtle) !important;
-  }
-
-  .prose td {
-    padding: 0.75rem 1rem !important;
-    border: 1px solid var(--border-subtle) !important;
-  }
-
-  .prose tr:nth-child(even) {
-    background-color: rgba(60, 56, 54, 0.3) !important;
-  }
-
-  /* Task Lists */
-  .prose ul>li.task-list-item {
-    list-style-type: none !important;
-    padding-left: 0 !important;
-  }
-
-  .prose ul>li.task-list-item::before {
-    display: none !important;
-  }
-
-  .prose .task-list-item-checkbox {
-    margin-right: 0.5rem !important;
-    accent-color: var(--brand-primary) !important;
-  }
-
-  /* Links */
-  .prose a {
-    color: var(--brand-primary) !important;
-    font-weight: 500 !important;
-    text-decoration: underline !important;
-    text-decoration-thickness: 1px !important;
-    text-underline-offset: 4px !important;
-    transition: all 0.2s ease !important;
-  }
-
-  .prose a:hover {
-    color: var(--brand-secondary) !important;
-    text-decoration-thickness: 2px !important;
-  }
-
-  /* Bold */
-  .prose strong,
-  .prose b {
+    padding: 1.5em 2em !important;
     color: var(--fg-primary) !important;
-    font-weight: 700 !important;
   }
 
-  /* Wikilinks Internal */
-  .prose a.wikilink-internal {
-    color: var(--brand-primary) !important;
-    text-decoration: none !important;
-    border-bottom: 1px dashed var(--brand-primary) !important;
-    transition: all 0.2s ease !important;
-  }
+  .prose a { color: var(--brand-primary) !important; text-decoration: underline !important; }
+}
 
-  .prose a.wikilink-internal:hover {
-    color: var(--brand-secondary) !important;
-    background-color: var(--brand-primary);
-    color: var(--bg-primary) !important;
-    border-bottom-style: solid !important;
-  }
-
-  /* Obsidian Callouts (via remark-callouts) */
+/* --- 7. CALLOUTS (Obsidian Style) --- */
+@layer components {
   .callout {
-    @apply my-6 overflow-hidden rounded-lg border-l-4 bg-background-soft/30 p-4 transition-all;
+    @apply my-4 overflow-hidden rounded-lg border-l-4 bg-background-soft/30 p-4 transition-all;
     border-left-color: var(--brand-primary);
   }
-
   .callout-title {
     @apply font-bold uppercase tracking-wider text-xs mb-2 flex items-center gap-2;
     color: var(--brand-primary);
   }
 
-  .callout-title::before {
-    content: "📝";
-    /* Icono por defecto */
-    @apply text-lg;
-  }
+  .callout[data-callout="note"] { border-left-color: var(--fg-muted); }
+  .callout[data-callout="info"] { border-left-color: var(--color-blue); }
+  .callout[data-callout="tip"] { border-left-color: var(--brand-accent); }
+  .callout[data-callout="warning"] { border-left-color: var(--color-orange); }
+  .callout[data-callout="danger"] { border-left-color: var(--color-red); }
+}
 
-  /* Specific Callout Types mapping to data-callout */
-  .callout[data-callout="note"] {
-    border-left-color: var(--fg-muted);
-  }
-
-  .callout[data-callout="note"] .callout-title {
-    color: var(--fg-muted);
-  }
-
-  .callout[data-callout="note"] .callout-title::before {
-    content: "📝";
-  }
-
-  .callout[data-callout="info"] {
-    border-left-color: var(--color-blue);
-  }
-
-  .callout[data-callout="info"] .callout-title {
-    color: var(--color-blue);
-  }
-
-  .callout[data-callout="info"] .callout-title::before {
-    content: "ℹ️";
-  }
-
-  .callout[data-callout="tip"] {
-    border-left-color: var(--brand-accent);
-  }
-
-  .callout[data-callout="tip"] .callout-title {
-    color: var(--brand-accent);
-  }
-
-  .callout[data-callout="tip"] .callout-title::before {
-    content: "💡";
-  }
-
-  .callout[data-callout="important"] {
-    border-left-color: var(--brand-primary);
-  }
-
-  .callout[data-callout="important"] .callout-title {
-    color: var(--brand-primary);
-  }
-
-  .callout[data-callout="important"] .callout-title::before {
-    content: "⚡";
-  }
-
-  .callout[data-callout="warning"] {
-    border-left-color: var(--color-orange);
-  }
-
-  .callout[data-callout="warning"] .callout-title {
-    color: var(--color-orange);
-  }
-
-  .callout[data-callout="warning"] .callout-title::before {
-    content: "⚠️";
-  }
-
-  .callout[data-callout="danger"] {
-    border-left-color: var(--color-red);
-  }
-
-  .callout[data-callout="danger"] .callout-title {
-    color: var(--color-red);
-  }
-
-  .callout[data-callout="danger"] .callout-title::before {
-    content: "🔥";
-  }
-
-  .callout-content {
-    @apply text-foreground/90 prose-p:my-0;
-  }
-
-  .text-label {
-    @apply text-[10px] font-mono text-muted uppercase tracking-widest;
-  }
-
-  .text-hint {
-    @apply text-[10px] font-mono text-muted/50 leading-relaxed italic;
-  }
-
-  .badge-xs {
-    @apply text-[9px] px-1 py-0.5 rounded uppercase font-bold;
-  }
-
-  .tag-small {
-    @apply px-1 py-0.5 rounded bg-white/5 text-[8px] uppercase font-mono;
-  }
-
-  .link-hover-brand {
-    @apply transition-colors hover:text-brand;
-  }
-
-  /* Responsive Grid/Carousel Utility for Markdown */
-  .grid-responsive {
-    display: flex;
-    gap: 1.25rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 0.5rem;
-    margin-right: -1.5rem;
-    /* Allow items to bleed out */
-    padding-right: 1.5rem;
-  }
-
-  /* Hide scrollbar but keep functionality */
-  .grid-responsive::-webkit-scrollbar {
-    display: none;
-  }
-
-  .grid-responsive {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  .grid-responsive>* {
-    flex: 0 0 85%;
-    scroll-snap-align: start;
-    min-width: 0;
-  }
-
-  @media (min-width: 768px) {
-    .grid-responsive {
-      display: grid;
-      gap: 1.75rem;
-      overflow-x: visible;
-      margin-right: 0;
-      padding-right: 0;
-      padding-bottom: 0;
-    }
-
-    .grid-responsive>* {
-      flex: none;
-    }
-
-    .grid-responsive.cols-2 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .grid-responsive.cols-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
+/* --- 8. UTILITIES --- */
+.grid-responsive {
+  display: flex; gap: 1.25rem; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+}
+@media (min-width: 768px) {
+  .grid-responsive { display: grid; gap: 1.75rem; overflow-x: visible; }
+  .grid-responsive.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-responsive.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
