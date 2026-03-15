@@ -145,26 +145,28 @@
                     ? 'max-h-[300px]'
                     : 'max-h-[60vh]'} custom-scrollbar"
             >
-{#each results as res, i}
-    <button
-        onclick={() => navigate(res.slug)}
-        class="result-item {i === selectedIndex ? 'selected' : ''}"
-    >
-        <div class="result-row">
-            <div class="result-main-info">
-                <span class="result-title font-bold">{res.title}</span>
-                
-                <div class="tags-row">
-                    {#each res.tags || [] as tag}
-                        <span class="tag-pill">{tag}</span>
-                    {/each}
-                </div>
-            </div>
+                {#each results as res, i}
+                    <button
+                        onclick={() => navigate(res.slug)}
+                        class="result-item {i === selectedIndex
+                            ? 'selected'
+                            : ''}"
+                    >
+                        <div class="result-row">
+                            <div class="result-main-info">
+                                <span class="result-title font-bold"
+                                    >{res.title}</span
+                                >
 
-
-        </div>
-    </button>
-{/each}
+                                <div class="tags-row">
+                                    {#each res.tags || [] as tag}
+                                        <span class="tag-pill">{tag}</span>
+                                    {/each}
+                                </div>
+                            </div>
+                        </div>
+                    </button>
+                {/each}
             </div>
         {:else if searchTerm.trim() !== ""}
             <div class="no-results">No hay resultados</div>

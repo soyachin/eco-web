@@ -14,9 +14,9 @@
 
   // Establecer tema oscuro como default
   $effect(() => {
-    if (typeof document !== 'undefined') {
-      const theme = localStorage.getItem('theme') || 'dark';
-      document.documentElement.setAttribute('data-theme', theme);
+    if (typeof document !== "undefined") {
+      const theme = localStorage.getItem("theme") || "dark";
+      document.documentElement.setAttribute("data-theme", theme);
     }
   });
 
@@ -26,15 +26,18 @@
 
   let GraphView = $state<Component<any> | null>(null);
   let Search = $state<Component<any> | null>(null);
+  let TableOfContents = $state<Component<any> | null>(null);
 
   onMount(async () => {
     // Cargar componentes dinámicamente
-    const [gv, s] = await Promise.all([
+    const [gv, s, toc] = await Promise.all([
       import("$lib/components/GraphView.svelte"),
       import("$lib/components/Search.svelte"),
+      import("$lib/components/TableOfContents.svelte"),
     ]);
     GraphView = gv.default;
     Search = s.default;
+    TableOfContents = toc.default;
   });
 
   let {
@@ -116,23 +119,23 @@
       background-color: var(--bg-primary);
       color: var(--fg-primary);
     }
-    
+
     /* Transición suave */
     .layout-container {
       transition: opacity 0.3s ease;
     }
-    
+
     /* Responsive */
     @media (max-width: 1024px) {
       .grid-container {
         grid-template-columns: 1fr !important;
       }
-      
+
       .content-area {
         grid-column: 1 !important;
         width: 100%;
       }
-      
+
       .sidebar {
         display: none !important;
       }
@@ -142,130 +145,136 @@
 
 <div class="layout-container {isHydrated ? 'opacity-100' : 'opacity-0'}">
   <nav class="navbar">
-  <div class="navbar-container">
-    <a href="/" class="logo">
-      <span>~/ecomecanico</span>
-    </a>
+    <div class="navbar-container">
+      <a href="/" class="logo">
+        <span>~/ecomecanico</span>
+      </a>
 
-    <div class="nav-links">
-      <button
-        class="nav-item lg:hidden p-2 -mr-2"
-        onclick={() => (isSearchOpen = true)}
-        aria-label="Search"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="lucide lucide-search"
-          ><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg
+      <div class="nav-links">
+        <button
+          class="nav-item lg:hidden p-2 -mr-2"
+          onclick={() => (isSearchOpen = true)}
+          aria-label="Search"
         >
-      </button>
-      <a href="/about" class="nav-item text-s hidden sm:inline-block">whoami</a>
-      <ThemeToggle />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-search"
+            ><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg
+          >
+        </button>
+        <a href="/about" class="nav-item text-s hidden sm:inline-block"
+          >whoami</a
+        >
+        <ThemeToggle />
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
 
-<main class="main-layout">
-  <div class="grid-container">
-    <!-- Columna Izquierda: Explorador (Hidden on Mobile) -->
-    <aside class="sidebar sidebar-left">
-      {#if shouldShowExplorer}
-        <div class="sticky-sidebar">
-          <h3 class="sidebar-title">Explorar</h3>
-          {#if Search}
-            <Search isSidebar={true} />
-          {/if}
-          <div class="sidebar-hint">
-            También puedes usar <span class="highlight">Ctrl + K</span>.
+  <main class="main-layout">
+    <div class="grid-container">
+      <!-- Columna Izquierda: Explorador (Hidden on Mobile) -->
+      <aside class="sidebar sidebar-left">
+        {#if shouldShowExplorer}
+          <div class="sticky-sidebar">
+            <h3 class="sidebar-title">Explorar</h3>
+            {#if Search}
+              <Search isSidebar={true} />
+            {/if}
+            <div class="sidebar-hint">
+              También puedes usar <span class="highlight">Ctrl + K</span>.
+            </div>
+
+            {#if TableOfContents && isMdNotePage}
+              <TableOfContents />
+            {/if}
           </div>
+        {/if}
+      </aside>
+
+      <!-- Centro: Contenido Principal -->
+      <div class="content-area">
+        <div class="content-wrapper">
+          {@render children()}
         </div>
-      {/if}
-    </aside>
 
-    <!-- Centro: Contenido Principal -->
-    <div class="content-area">
-      <div class="content-wrapper">
-        {@render children()}
-      </div>
-
-      <!-- Mobile-only section for Backlinks (No Graph) -->
-      <div class="mobile-complement lg:hidden mt-12 space-y-8">
-        {#if shouldShowGraphAndBacklinks}
-          {@render sideContent(true)}
-        {/if}
-      </div>
-    </div>
-
-    <!-- Columna Derecha: Grafo y Backlinks (Desktop) -->
-    <aside class="sidebar sidebar-right">
-      <div class="sticky-sidebar">
-        {#if shouldShowGraphAndBacklinks}
-          {@render sideContent(false)}
-        {/if}
-      </div>
-    </aside>
-  </div>
-</main>
-
-{#snippet sideContent(isMobile: boolean)}
-  <div class="flex flex-col gap-8">
-    <!-- Grafo (Hidden on Mobile as requested) -->
-    {#if !isMobile}
-      <section class="card">
-        <h3 class="card-title">
-          {isHomePage ? "Jardín" : "Interconexiones"}
-        </h3>
-        <div class="graph-wrapper">
-          {#if GraphView}
-            <GraphView
-              nodes={data.notes}
-              links={graphLinks}
-              currentSlug={isHomePage ? "" : currentSlug}
-              isGlobal={isHomePage}
-            />
+        <!-- Mobile-only section for Backlinks (No Graph) -->
+        <div class="mobile-complement lg:hidden mt-12 space-y-8">
+          {#if shouldShowGraphAndBacklinks}
+            {@render sideContent(true)}
           {/if}
         </div>
-      </section>
-    {/if}
+      </div>
 
-    <!-- Backlinks -->
-    {#if !isHomePage && backlinks.length > 0}
-      <section class="card overflow-hidden">
-        <h3 class="card-title">Enlazado en</h3>
-        <ul class="backlinks-list custom-scrollbar">
-          {#each backlinks as backlink}
-            <li>
-              <a href="/{backlink.slug}" class="backlink-item group">
-                <span class="backlink-text"
-                  >{backlink.meta?.title ?? backlink.slug}</span
-                >
-              </a>
-            </li>
-          {/each}
-        </ul>
-      </section>
-    {/if}
-  </div>
-{/snippet}
+      <!-- Columna Derecha: Grafo y Backlinks (Desktop) -->
+      <aside class="sidebar sidebar-right">
+        <div class="sticky-sidebar">
+          {#if shouldShowGraphAndBacklinks}
+            {@render sideContent(false)}
+          {/if}
+        </div>
+      </aside>
+    </div>
+  </main>
 
-<LinkPreview
-  active={preview.active}
-  x={preview.x}
-  y={preview.y}
-  note={preview.note}
-/>
+  {#snippet sideContent(isMobile: boolean)}
+    <div class="flex flex-col gap-8">
+      <!-- Grafo (Hidden on Mobile as requested) -->
+      {#if !isMobile}
+        <section class="card">
+          <h3 class="card-title">
+            {isHomePage ? "Jardín" : "Interconexiones"}
+          </h3>
+          <div class="graph-wrapper">
+            {#if GraphView}
+              <GraphView
+                nodes={data.notes}
+                links={graphLinks}
+                currentSlug={isHomePage ? "" : currentSlug}
+                isGlobal={isHomePage}
+              />
+            {/if}
+          </div>
+        </section>
+      {/if}
 
-{#if Search}
-  <Search bind:isOpen={isSearchOpen} />
-{/if}
+      <!-- Backlinks -->
+      {#if !isHomePage && backlinks.length > 0}
+        <section class="card overflow-hidden">
+          <h3 class="card-title">Enlazado en</h3>
+          <ul class="backlinks-list custom-scrollbar">
+            {#each backlinks as backlink}
+              <li>
+                <a href="/{backlink.slug}" class="backlink-item group">
+                  <span class="backlink-text"
+                    >{backlink.meta?.title ?? backlink.slug}</span
+                  >
+                </a>
+              </li>
+            {/each}
+          </ul>
+        </section>
+      {/if}
+    </div>
+  {/snippet}
+
+  <LinkPreview
+    active={preview.active}
+    x={preview.x}
+    y={preview.y}
+    note={preview.note}
+  />
+
+  {#if Search}
+    <Search bind:isOpen={isSearchOpen} />
+  {/if}
 </div>
 
 <style lang="postcss">
@@ -278,10 +287,10 @@
   }
 
   /* Unificar fondos Gruvbox para evitar franjas */
-  :global(body), 
-  .navbar, 
-  .main-layout, 
-  .content-area, 
+  :global(body),
+  .navbar,
+  .main-layout,
+  .content-area,
   .grid-container {
     background-color: var(--bg-primary) !important;
   }

@@ -53,6 +53,8 @@ joseph es conocido por haber popularizado la imagen del santa claus regordete ve
     caption="santa's lap, christmas post cover - J. C. Leyendecker (1923)"
 />
 
+## influencia en arte contemporáneo
+
 para algo más tangible de nuestros años, también es curioso recalcar que muchos artistas contemporáneos se inspiran en su obra. por ejemplo, Team Fortress 2 (TF2) es un claro ejemplo de ello y se puede observar en el arte de personaje.
 
 <blockquote class="component component--quote">
@@ -91,7 +93,7 @@ para algo más tangible de nuestros años, también es curioso recalcar que much
 </div>
 
 
-### references
+## references
 1. https://americanillustration.org/project/f-x-leyendecker/
 2. https://www.illustrationhistory.org/artists/frank-xavier-leyendecker
 
