@@ -1,11 +1,18 @@
 <script lang="ts">
+  import { browser } from "$app/environment";
   import { page } from "$app/state";
-  import { formatDate, sortNotesByDateDesc, filterNotesByTag } from "$lib/utils";
+  import {
+    formatDate,
+    sortNotesByDateDesc,
+    filterNotesByTag,
+  } from "$lib/utils";
   import type { Note } from "$lib/types";
 
   let { data }: { data: { notes: Note[] } } = $props();
 
-  let selectedTag = $derived(page.url.searchParams.get("tag") ?? "todos");
+  let selectedTag = $derived(
+    browser ? (page.url.searchParams.get("tag") ?? "todos") : "todos",
+  );
 
   let allSortedNotes = $derived(sortNotesByDateDesc(data.notes));
 

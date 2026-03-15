@@ -1,4 +1,6 @@
 // src/routes/+layout.ts
+export const prerender = true;
+export const trailingSlash = 'never';
 import type { LayoutLoad } from './$types';
 // before we precomputed notes dynamically; now we rely on the generated JSON
 // files which are produced by `npm run generate` during build.
