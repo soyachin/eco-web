@@ -70,7 +70,6 @@ function processFile(fullPath, relPath) {
     const { data, content: body } = matter(content);
     const stats = fs.statSync(fullPath);
     const slug = slugify(path.basename(fileName, '.md'));
-
     const processedData = {
         hash,
         slug,
@@ -80,6 +79,7 @@ function processFile(fullPath, relPath) {
             date: data.date || stats.birthtime.toISOString()
         },
         snippet: generateSnippet(body),
+        content: body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(),
         links: extractWikiLinks(body)
     };
 
@@ -115,13 +115,14 @@ const sortedFilePaths = Object.keys(cache.files).sort();
 
 for (const relPath of sortedFilePaths) {
     const data = cache.files[relPath];
-    const { slug, meta, snippet, links } = data;
+    const { slug, meta, snippet, links, content } = data;
 
     notes.push({ slug, meta, snippet });
     searchIndex.push({
         slug,
         title: meta.title,
-        tags: meta.tags
+        tags: meta.tags,
+        content
     });
 
     const uniqueTargets = [...new Set(links.map(link => slugify(link)))];

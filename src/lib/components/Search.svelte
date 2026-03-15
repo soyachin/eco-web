@@ -9,6 +9,8 @@
     interface SearchItem extends Note {
         tags?: string[];
         title: string;
+        content?: string;
+        snippetFound?: string; // Highlighting/Context snippet
     }
 
     let { isSidebar = false, isOpen = $bindable(false) } = $props();
@@ -33,12 +35,18 @@
                 if (!res.ok) throw new Error("Search index not found");
                 allData = await res.json();
 
-                index = new Index({ tokenize: "forward", cache: true });
+                index = new Index({
+                    tokenize: "forward",
+                    cache: true,
+                    // Allow searching across multiple concatenated fields
+                });
+
                 allData.forEach((item, i) => {
                     const tagsStr = Array.isArray(item.tags)
                         ? item.tags.join(" ")
                         : "";
-                    index?.add(i, `${item.title} ${tagsStr} ${item.slug}`);
+                    const searchableText = `${item.title} ${tagsStr} ${item.slug} ${item.content || ""}`;
+                    index?.add(i, searchableText.toLowerCase());
                 });
             } catch (err) {
                 console.error("Failed to initialize search:", err);
@@ -66,19 +74,52 @@
         if (!isSidebar && isOpen) searchInput?.focus();
     });
 
+    /**
+     * Extracts a snippet of text around the found term and highlights it.
+     */
+    function getContextSnippet(text: string, query: string): string {
+        const index = text.toLowerCase().indexOf(query.toLowerCase());
+        if (index === -1) return text.slice(0, 100) + "...";
+
+        const start = Math.max(0, index - 40);
+        const end = Math.min(text.length, index + query.length + 80);
+        let snippet = text.slice(start, end);
+
+        if (start > 0) snippet = "..." + snippet;
+        if (end < text.length) snippet = snippet + "...";
+
+        // Simple highlight (vuln to HTML in text but we cleaned it in generate-notes)
+        const regex = new RegExp(`(${query})`, "gi");
+        return snippet.replace(
+            regex,
+            '<mark class="search-highlight">$1</mark>',
+        );
+    }
+
     $effect(() => {
-        if (!index || !searchTerm.trim()) {
+        if (!index || !searchTerm.trim() || searchTerm.length < 2) {
             results = [];
             return;
         }
 
         const query = searchTerm.toLowerCase().trim();
-        const searchResults = index.search(query, { limit: 15 }) as number[];
-        results = searchResults.map((idx) => allData[idx]).filter(Boolean);
+        const searchResults = index.search(query, { limit: 10 }) as number[];
+
+        results = searchResults
+            .map((idx) => {
+                const item = { ...allData[idx] };
+                if (item.content) {
+                    item.snippetFound = getContextSnippet(item.content, query);
+                }
+                return item;
+            })
+            .filter(Boolean);
+
         selectedIndex = 0;
     });
 
     function handleKeydown(e: KeyboardEvent) {
+        if (results.length === 0) return;
         if (e.key === "ArrowDown") {
             selectedIndex = (selectedIndex + 1) % results.length;
             e.preventDefault();
@@ -153,16 +194,26 @@
                             : ''}"
                     >
                         <div class="result-row">
-                            <div class="result-main-info">
-                                <span class="result-title font-bold"
-                                    >{res.title}</span
+                            <div class="result-main-info w-full">
+                                <div
+                                    class="flex justify-between items-center mb-1"
                                 >
-
-                                <div class="tags-row">
-                                    {#each res.tags || [] as tag}
-                                        <span class="tag-pill">{tag}</span>
-                                    {/each}
+                                    <span
+                                        class="result-title font-bold text-base"
+                                        >{res.title}</span
+                                    >
+                                    <div class="tags-row">
+                                        {#each res.tags || [] as tag}
+                                            <span class="tag-pill">{tag}</span>
+                                        {/each}
+                                    </div>
                                 </div>
+
+                                {#if res.snippetFound && searchTerm.length >= 2}
+                                    <p class="search-snippet">
+                                        {@html res.snippetFound}
+                                    </p>
+                                {/if}
                             </div>
                         </div>
                     </button>
@@ -226,10 +277,22 @@
     }
 
     .result-item {
-        @apply w-full flex flex-col gap-0.5 p-2 rounded-md text-left transition-colors duration-150 hover:bg-white/5;
+        @apply w-full flex flex-col gap-0.5 p-3 rounded-md text-left transition-colors duration-150 hover:bg-white/5;
         &.selected {
-            @apply bg-brand/20 text-foreground;
+            @apply bg-brand/10 text-foreground border-l-2 border-brand pl-2.5;
         }
+    }
+
+    .search-snippet {
+        @apply text-[11px] leading-relaxed text-muted/60 font-mono mt-1 italic;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    :global(.search-highlight) {
+        @apply bg-brand/20 text-brand font-bold rounded-sm px-0.5;
     }
 
     .tags-row {
