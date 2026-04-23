@@ -1,35 +1,26 @@
 /* --- 1. CORE IMPORTS --- */
-@import url('https://fonts.googleapis.com/css2?family=Syne+Tactile&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Victor+Mono:ital,wght@0,100..700;1,100..700&display=swap');
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* --- 2. TAILWIND v4 THEME CONFIG --- */
+/* --- 2. DESIGN SYSTEM (Tailwind v4) --- */
 @theme {
   --font-syne: "Syne Tactile", system-ui, cursive;
-  --font-main: 'Serious Shann', ui-monospace, monospace;
+  --font-main: 'Comic Shanns Mono', 'Inconsolata', ui-monospace, monospace;
+  --font-mono: "Inconsolata", monospace;
+  --font-cursive: "Victor Mono", monospace;
 
-  /* Definimos Victor Mono como la fuente mono oficial */
-  --font-mono: "Victor Mono", monospace;
-  --font-victor: "Victor Mono", monospace;
-
-  /* Mapeo de fuentes por defecto */
-  --font-sans: var(--font-main);
-
-  /* Mapeo de colores Gruvbox */
+  /* Colors: Native Tailwind mapping for Gruvbox */
   --color-background: var(--bg-primary);
   --color-background-soft: var(--bg-secondary);
   --color-foreground: var(--fg-primary);
   --color-brand: var(--brand-primary);
   --color-brand-muted: var(--brand-secondary);
+  --color-brand-accent: var(--brand-accent);
   --color-accent: var(--brand-accent);
   --color-muted: var(--fg-muted);
   --color-border-subtle: var(--border-subtle);
-}
 
-/* --- 3. SEMANTIC DESIGN SYSTEM --- */
-:root {
-  /* Gruvbox dark */
+  /* Semantic palette */
   --bg-primary: #282828;
   --bg-secondary: #3c3836;
   --bg-tertiary: #32302f;
@@ -39,288 +30,140 @@
   --brand-primary: #d3869b;
   --brand-secondary: #b16286;
   --brand-accent: #8ec07c;
-  --color-red: #fb4934;
-  --color-green: #b8bb26;
-  --color-yellow: #fabd2f;
-  --color-blue: #83a598;
-  --color-orange: #fe8019;
   --border-subtle: #3c3836;
-  --border-focus: #d3869b50;
 
   /* Layout Constants */
   --nav-height: 64px;
-  --page-top-margin: 3rem;
   --sidebar-width: 260px;
   --main-content-max-width: 800px;
   --layout-max-width: 1200px;
 }
 
+/* --- 3. THEMES --- */
 :root[data-theme='light'] {
   --bg-primary: #fbf1c7;
   --bg-secondary: #f2e5bc;
-  --bg-tertiary: #ebdbb2;
   --fg-primary: #3c3836;
   --fg-muted: #7c6f64;
-  --fg-dim: #928374;
   --brand-primary: #b16286;
-  --brand-secondary: #b16286;
-  --brand-accent: #8ec07c;
-  --color-red: #9d0006;
-  --color-green: #79740e;
-  --color-yellow: #b57614;
-  --color-blue: #076678;
-  --color-orange: #af3a03;
   --border-subtle: #ebdbb2;
-  --border-focus: #8f3f7150;
 }
 
-/* --- 4. CUSTOM FONT FACES (Serious Shann) --- */
+/* --- 4. FONTS --- */
 @font-face {
-  font-family: 'Serious Shann';
-  src: url('/SeriousShanns-Regular.otf') format('opentype');
+  font-family: 'Comic Shanns Mono';
+  src: url('/ComicShannsMono-Regular.otf') format('opentype');
   font-weight: 400;
-  font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Serious Shann';
-  src: url('/SeriousShanns-Italic.otf') format('opentype');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Serious Shann';
-  src: url('/SeriousShanns-Bold.otf') format('opentype');
+  font-family: 'Comic Shanns Mono';
+  src: url('/ComicShannsMono-Bold.otf') format('opentype');
   font-weight: 700;
-  font-style: normal;
   font-display: swap;
 }
 
-@font-face {
-  font-family: 'Serious Shann';
-  src: url('/SeriousShanns-BoldItalic.otf') format('opentype');
-  font-weight: 700;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Serious Shann';
-  src: url('/SeriousShanns-Light.otf') format('opentype');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Serious Shann';
-  src: url('/SeriousShanns-LightItalic.otf') format('opentype');
-  font-weight: 300;
-  font-style: italic;
-  font-display: swap;
-}
-
-/* --- 5. BASE & LAYOUT RULES --- */
+/* --- 5. BASE STYLES --- */
 @layer base {
   body {
-    background-color: var(--bg-primary);
-    color: var(--fg-primary);
+    @apply bg-background text-foreground transition-colors duration-300;
     font-family: var(--font-main);
-    transition: background-color 0.3s ease, color 0.3s ease;
-    font-feature-settings: "cv02", "cv03", "cv04", "ss01";
   }
 
-  /* Forzamos que todo lo que use mono tenga peso 300 */
-  code,
-  pre,
-  kbd,
-  samp,
-  .font-mono {
-    font-family: var(--font-victor) !important;
-    font-weight: 600 !important;
-  }
-
-  .font-syne {
-    font-family: 'Syne Tactile', system-ui, cursive;
+  /* Target mono elements globally */
+  code, pre, kbd, .font-mono {
+    font-family: var(--font-mono) !important;
+    font-weight: 400 !important;
   }
 }
 
+/* --- 6. LAYOUT COMPONENTS --- */
 .main-layout {
-  width: 100%;
+  @apply mx-auto w-full px-4 sm:px-6;
   max-width: var(--layout-max-width);
-  margin-inline: auto;
-  padding-left: max(1rem, env(safe-area-inset-left));
-  padding-right: max(1rem, env(safe-area-inset-right));
 }
 
 .content-wrapper {
-  width: 100%;
+  @apply mx-auto w-full;
   max-width: var(--main-content-max-width);
-  margin-inline: auto;
 }
 
 @layer base {
   .prose {
-    color: var(--fg-primary) !important;
-    font-family: var(--font-main) !important;
-    line-height: 1.7 !important;
-    max-width: 85ch !important;
-    font-size: 1.05rem !important;
-  }
+    color: var(--fg-primary);
+    font-family: var(--font-main);
+    line-height: 1.7;
+    max-width: 85ch;
+    font-size: 0.95rem;
 
-  /* Negritas: solo peso, sin cursiva */
-  .prose i,
-  .prose em {
-    color: var(--fg-primary) !important;
-    font-weight: 400 !important;
-    font-family: var(--font-victor) !important;
-    font-style: normal !important;
-    font-style: italic !important;
-  }
+    /* Semantic Headings */
+    h1, h2, h3, h4 {
+      @apply text-brand font-bold tracking-tight mt-10 mb-5;
+    }
 
-  /* Cursivas: peso normal, con estilo cursivo */
-  .prose b,
-  .prose strong {
-    color: var(--fg-primary) !important;
-    font-weight: 900 !important;
-    font-family: var(--font-victor) !important;
-    font-style: italic !important;
-  }
+    h1 {
+      @apply font-syne font-medium text-4xl;
+    }
 
-  /* Negrita + Cursiva (Bold Italic): combina ambos */
-  .prose strong em,
-  .prose em strong,
-  .prose b i,
-  .prose i b {
-    font-weight: 900 !important;
-    font-style: italic !important;
-    font-family: var(--font-victor) !important;
-  }
+    h2 { @apply text-2xl border-b border-border-subtle pb-2; }
 
-  .prose p {
-    margin-top: 1.5em !important;
-    margin-bottom: 1.5em !important;
-  }
+    p { @apply my-6; }
 
-  .prose h1,
-  .prose h2,
-  .prose h3,
-  .prose h4 {
-    color: var(--brand-primary) !important;
-    font-weight: 700 !important;
-    letter-spacing: -0.02em !important;
-    margin-top: 1em !important;
-    margin-bottom: 0.8em !important;
-  }
+    a {
+      @apply text-brand underline underline-offset-4 decoration-brand/30 hover:decoration-brand transition-all;
+    }
 
-  .prose h1 {
-    font-family: 'Syne Tactile', cursive !important;
-    font-weight: 500 !important;
-  }
+    blockquote {
+      @apply border-l-4 border-brand bg-background-soft px-8 py-4 italic rounded-r-lg my-10;
+      color: var(--fg-primary);
+    }
 
-  .prose>*:first-child h1 {
-    margin-top: 0 !important;
-  }
+    code {
+      @apply text-brand-accent bg-background-soft px-1.5 py-0.5 rounded font-mono text-[0.9em];
+    }
 
-  /* Ajustes de listas */
-  .prose ul,
-  .prose ol {
-    padding-left: 1.5em !important;
-  }
+    pre {
+      @apply bg-background-soft border border-border-subtle rounded-xl p-6 overflow-x-auto my-10;
+    }
 
-  .prose ul>li::before {
-    content: "•";
-    color: var(--brand-primary);
-    position: absolute;
-    left: -1em;
-    font-weight: bold;
-  }
-
-  /* Ajuste de bloques de código en Prose */
-  .prose code {
-    color: var(--brand-accent) !important;
-    font-family: "Victor Mono", monospace !important;
-    font-weight: 300 !important;
-    font-size: 0.9em !important;
-  }
-
-  .prose pre {
-    background-color: var(--bg-secondary) !important;
-    border: 1px solid var(--border-subtle) !important;
-    border-radius: 0.75rem !important;
-    padding: 1.5em !important;
-  }
-
-  .prose blockquote {
-    border-left: 4px solid var(--brand-primary) !important;
-    background-color: var(--bg-secondary) !important;
-    padding: 1.5em 2em !important;
-    color: var(--fg-primary) !important;
-  }
-
-  .prose a {
-    color: var(--brand-primary) !important;
-    text-decoration: underline !important;
+    ul, ol { @apply pl-6 my-6; }
+    li { @apply my-2; }
   }
 }
 
-/* --- 7. CALLOUTS (Obsidian Style) --- */
+/* --- 7. CALLOUTS --- */
 @layer components {
   .callout {
-    @apply my-4 overflow-hidden rounded-lg border-l-4 bg-background-soft/30 p-4 transition-all;
+    @apply my-8 overflow-hidden rounded-xl border-l-4 bg-background-soft/40 p-6 transition-all;
     border-left-color: var(--brand-primary);
   }
 
   .callout-title {
-    @apply font-bold uppercase tracking-wider text-xs mb-2 flex items-center gap-2;
-    color: var(--brand-primary);
+    @apply font-mono font-bold uppercase tracking-widest text-[10px] mb-3 flex items-center gap-2 text-brand;
   }
 
-  .callout[data-callout="note"] {
-    border-left-color: var(--fg-muted);
-  }
-
-  .callout[data-callout="info"] {
-    border-left-color: var(--color-blue);
-  }
-
-  .callout[data-callout="tip"] {
-    border-left-color: var(--brand-accent);
-  }
-
-  .callout[data-callout="warning"] {
-    border-left-color: var(--color-orange);
-  }
-
-  .callout[data-callout="danger"] {
-    border-left-color: var(--color-red);
-  }
+  /* Gruvbox Accents for Callouts */
+  .callout[data-callout="note"] { border-left-color: var(--fg-muted); }
+  .callout[data-callout="info"] { border-left-color: #83a598; }
+  .callout[data-callout="tip"] { border-left-color: var(--brand-accent); }
+  .callout[data-callout="warning"] { border-left-color: #fe8019; }
+  .callout[data-callout="danger"] { border-left-color: #fb4934; }
 }
 
 /* --- 8. UTILITIES --- */
 .grid-responsive {
-  display: flex;
-  gap: 1.25rem;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
+  @apply flex gap-6 overflow-x-auto snap-x snap-mandatory md:grid md:overflow-x-visible;
+  
+  /* scrollbar-hide */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
 }
 
 @media (min-width: 768px) {
-  .grid-responsive {
-    display: grid;
-    gap: 1.75rem;
-    overflow-x: visible;
-  }
-
-  .grid-responsive.cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .grid-responsive.cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+  .grid-responsive.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-responsive.cols-3 { grid-template-columns: repeat(3, 1fr); }
 }
