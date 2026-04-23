@@ -1,0 +1,50 @@
+[
+    {
+        "id": 1,
+        "title": "Neon Dreams",
+        "description": "A study of light and architecture in a futuristic setting.",
+        "image": "https://picsum.photos/seed/neon/1200/800",
+        "category": "Digital",
+        "year": "2024"
+    },
+    {
+        "id": 2,
+        "title": "Solitude",
+        "description": "Minimalist digital charcoal sketch exploring loneliness.",
+        "image": "https://picsum.photos/seed/sketch/800/1200",
+        "category": "Sketch",
+        "year": "2023"
+    },
+    {
+        "id": 3,
+        "title": "Floating Islands",
+        "description": "Cinematic landscape of a world beyond our atmosphere.",
+        "image": "https://picsum.photos/seed/landscape/1200/600",
+        "category": "Digital",
+        "year": "2024"
+    },
+    {
+        "id": 4,
+        "title": "Urban Decay",
+        "description": "Textured oil painting depicting the passage of time in the city.",
+        "image": "https://picsum.photos/seed/urban/800/1000",
+        "category": "Traditional",
+        "year": "2022"
+    },
+    {
+        "id": 5,
+        "title": "Abstract Waves",
+        "description": "Fluid motions and harmonious color palettes.",
+        "image": "https://picsum.photos/seed/abstract/1200/800",
+        "category": "Abstract",
+        "year": "2024"
+    },
+    {
+        "id": 6,
+        "title": "The Guardian",
+        "description": "Character design for a mythic protector.",
+        "image": "https://picsum.photos/seed/guardian/800/800",
+        "category": "Character",
+        "year": "2023"
+    }
+]

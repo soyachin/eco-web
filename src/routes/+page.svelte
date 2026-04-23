@@ -28,7 +28,7 @@
 </h1>
 
 <ul class="flex flex-col gap-8">
-  {#each filteredNotes as note}
+  {#each filteredNotes as note (note.slug)}
     <li class="group">
       <div class="flex flex-col gap-1">
         <a href="/{note.slug}" class="block no-underline">
@@ -44,7 +44,7 @@
             {formatDate(note.meta?.date) || "??/??/????"}
           </span>
           <div class="flex gap-2">
-            {#each note.meta?.tags ?? [] as tag}
+            {#each note.meta?.tags ?? [] as tag (tag)}
               <a
                 href="/tags/{tag}"
                 class="text-muted hover:text-accent transition-colors no-underline"

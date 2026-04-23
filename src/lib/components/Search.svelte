@@ -36,7 +36,7 @@
                 allData = await res.json();
 
                 index = new Index({
-                    tokenize: "forward",
+                    tokenize: "full",
                     cache: true,
                     // Allow searching across multiple concatenated fields
                 });
@@ -202,11 +202,15 @@
                                         class="result-title font-bold text-base"
                                         >{res.title}</span
                                     >
+
+                                    <!-- tags 
                                     <div class="tags-row">
                                         {#each res.tags || [] as tag}
                                             <span class="tag-pill">{tag}</span>
                                         {/each}
+                                    
                                     </div>
+                            -->
                                 </div>
 
                                 {#if res.snippetFound && searchTerm.length >= 2}
@@ -269,7 +273,7 @@
     }
 
     .kbd-hint {
-        @apply px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] text-muted font-mono uppercase;
+        @apply px-2 py-1 rounded-md bg-white/5 border border-white/10 text-sm text-muted font-mono uppercase;
     }
 
     .results-container {
@@ -278,13 +282,14 @@
 
     .result-item {
         @apply w-full flex flex-col gap-0.5 p-3 rounded-md text-left transition-colors duration-150 hover:bg-white/5;
+        @apply text-sm text-muted;
         &.selected {
-            @apply bg-brand/10 text-foreground border-l-2 border-brand pl-2.5;
+            @apply bg-brand/10 text-foreground/80 pl-2.5;
         }
     }
 
     .search-snippet {
-        @apply text-[11px] leading-relaxed text-muted/60 font-mono mt-1 italic;
+        @apply text-[0.7rem] leading-relaxed text-muted/60 font-mono mt-1 italic;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
@@ -294,7 +299,7 @@
     :global(.search-highlight) {
         @apply bg-brand/20 text-brand font-bold rounded-sm px-0.5;
     }
-
+    /*
     .tags-row {
         @apply flex gap-1;
     }
@@ -302,13 +307,13 @@
     .tag-pill {
         @apply px-1 py-0.5 rounded bg-white/5 text-[8px] uppercase font-mono;
     }
-
+    */
     .no-results {
         @apply p-6 text-center text-muted text-xs opacity-40 italic;
     }
 
     .search-footer {
-        @apply p-2 bg-white/2 border-t border-border-subtle flex gap-4 text-[9px] text-muted/60 font-mono;
+        @apply p-2 bg-white/2 border-t border-border-subtle flex gap-4 text-sm text-muted/60 font-mono;
         b {
             @apply text-muted;
         }

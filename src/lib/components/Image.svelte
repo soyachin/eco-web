@@ -1,37 +1,43 @@
 <script lang="ts">
     /**
      * @file Image.svelte
-     * Robust flexible image component. Uses absolute positioning to ensure
-     * object-fit works correctly even inside complex CSS environments like .prose.
+     * Robust flexible image component migrated to Svelte 5 Runes.
      */
     import { borderRadius, boxShadow, defaults } from "$lib/styles";
-    
-    export let src: string;
-    export let alt = "";
-    export let caption = "";
-    export let width = "100%";
-    export let height = "auto";
-    export let aspectRatio = "auto";
-    export let fit: "cover" | "contain" | "fill" | "scale-down" | "none" =
-        "cover";
-    export let position = "center";
-    export let align: "left" | "center" | "right" = "center";
-    export let rounded:
-        | "none"
-        | "sm"
-        | "md"
-        | "lg"
-        | "xl"
-        | "2xl"
-        | "3xl"
-        | "full" = "xl";
-    export let shadow: "none" | "sm" | "md" | "lg" | "xl" | "2xl" = "md";
-    export let className = "";
-    export let zoom = true;
 
-    // Loading state
-    let isLoading = true;
-    let hasError = false;
+    let {
+        src,
+        alt = "",
+        caption = "",
+        width = "100%",
+        height = "auto",
+        aspectRatio = "auto",
+        fit = "cover",
+        position = "center",
+        align = "center",
+        rounded = "xl",
+        shadow = "md",
+        className = "",
+        zoom = true,
+    }: {
+        src: string;
+        alt?: string;
+        caption?: string;
+        width?: string;
+        height?: string;
+        aspectRatio?: string;
+        fit?: "cover" | "contain" | "fill" | "scale-down" | "none";
+        position?: string;
+        align?: "left" | "center" | "right";
+        rounded?: "none" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "full";
+        shadow?: "none" | "sm" | "md" | "lg" | "xl" | "2xl";
+        className?: string;
+        zoom?: boolean;
+    } = $props();
+
+    // Loading state using Svelte 5 runes
+    let isLoading = $state(true);
+    let hasError = $state(false);
 
     function handleLoad() {
         isLoading = false;
@@ -55,7 +61,8 @@
     style="width: {width}; max-width: 100%;"
 >
     <div
-        class="relative w-full overflow-hidden border border-white/10 bg-secondary/20 {borderRadius[rounded] || defaults.rounded} {boxShadow[shadow] || defaults.shadow} group"
+        class="relative w-full overflow-hidden border border-white/10 bg-secondary/20 {borderRadius[rounded] ||
+            defaults.rounded} {boxShadow[shadow] || defaults.shadow} group"
         style="{height !== 'auto' ? `height: ${height};` : ''} {aspectRatio !==
         'auto'
             ? `aspect-ratio: ${aspectRatio};`
@@ -64,7 +71,9 @@
         <!-- Loading spinner - brand color animation -->
         {#if isLoading && !hasError}
             <div class="absolute inset-0 flex items-center justify-center z-10">
-                <div class="w-8 h-8 border-3 border-brand/20 border-t-brand rounded-full animate-spin"></div>
+                <div
+                    class="w-8 h-8 border-3 border-brand/20 border-t-brand rounded-full animate-spin"
+                ></div>
             </div>
         {/if}
 
@@ -78,8 +87,8 @@
                 : 'relative h-auto'} {isLoading ? 'opacity-0' : 'opacity-100'}"
             style="object-fit: {fit}; object-position: {position};"
             loading="lazy"
-            on:load={handleLoad}
-            on:error={handleError}
+            onload={handleLoad}
+            onerror={handleError}
         />
 
         <!-- Hover overlay -->

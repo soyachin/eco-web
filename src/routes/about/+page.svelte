@@ -29,7 +29,7 @@
     </h1>
 
     <p class="text-center max-w-prose px-6 leading-relaxed">
-        <b>ecomecanico </b> es el proyecto personal que reune mi pasión por el <b>arte y la ciencia</b>. 
+        <span class="font-cursive">ecomecanico</span> es el proyecto personal que reune mi pasión por el <span class="font-cursive">arte y la ciencia</span>. 
         este es un espacio donde comparto mis aficiones, descubrimientos y proyectos 
         relacionados con el arte, ciencia y tecnología.
 

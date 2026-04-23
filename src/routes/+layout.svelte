@@ -58,9 +58,11 @@
     clearTimeout(previewTimer);
   });
 
-  function handleMouseOver(e: MouseEvent) {
+  function handleMouseOver(e: MouseEvent | FocusEvent) {
     const target = (e.target as HTMLElement).closest("a");
-    const href = target?.getAttribute("href");
+    if (!target) return;
+
+    const href = target.getAttribute("href");
 
     if (href?.startsWith("/") && href.length > 1) {
       const slug = href.slice(1).split(/[?#]/)[0];
@@ -70,24 +72,32 @@
 
       if (note) {
         clearTimeout(previewTimer);
+        const x = "clientX" in e ? (e as MouseEvent).clientX : 0;
+        const y = "clientY" in e ? (e as MouseEvent).clientY : 0;
         previewTimer = setTimeout(() => {
-          preview = { active: true, x: e.clientX, y: e.clientY, note };
+          preview = { active: true, x, y, note };
         }, 300);
       }
     }
   }
 
-  function handleMouseOut() {
-    clearTimeout(previewTimer);
-    preview.active = false;
+  function handleMouseOut(e: MouseEvent | FocusEvent) {
+    const target = (e.target as HTMLElement).closest("a");
+    if (target) {
+      clearTimeout(previewTimer);
+      preview.active = false;
+    }
   }
 
   const currentSlug = $derived(page.params.slug ?? "");
-  const graphLinks = $derived(
-    Object.entries(data.backlinksMap || {}).flatMap(([target, sources]) =>
+  
+  // Cache the processed graph links to avoid flatmapping every time
+  const graphLinks = $derived.by(() => {
+    if (!data.backlinksMap) return [];
+    return Object.entries(data.backlinksMap).flatMap(([target, sources]) =>
       sources.map((s) => ({ source: s.slug, target })),
-    ),
-  );
+    );
+  });
 
   const isHomePage = $derived(page.url.pathname === "/");
   const isMdNotePage = $derived(!!page.data?.content);
@@ -109,41 +119,16 @@
   let isSearchOpen = $state(false);
 </script>
 
-<svelte:window on:mouseover={handleMouseOver} on:mouseout={handleMouseOut} />
 
-<!-- Estilos para evitar flashing -->
-<svelte:head>
-  <style>
-    /* Asegurar tema oscuro inmediato */
-    html[data-theme="dark"] {
-      background-color: var(--bg-primary);
-      color: var(--fg-primary);
-    }
 
-    /* Transición suave */
-    .layout-container {
-      transition: opacity 0.3s ease;
-    }
-
-    /* Responsive */
-    @media (max-width: 1024px) {
-      .grid-container {
-        grid-template-columns: 1fr !important;
-      }
-
-      .content-area {
-        grid-column: 1 !important;
-        width: 100%;
-      }
-
-      .sidebar {
-        display: none !important;
-      }
-    }
-  </style>
-</svelte:head>
-
-<div class="layout-container {isHydrated ? 'opacity-100' : 'opacity-0'}">
+<div
+  class="layout-container {isHydrated ? 'opacity-100' : 'opacity-0'}"
+  onmouseover={handleMouseOver}
+  onmouseout={handleMouseOut}
+  onfocusin={handleMouseOver}
+  onfocusout={handleMouseOut}
+  role="presentation"
+>
   <nav class="navbar">
     <div class="navbar-container">
       <a href="/" class="logo">
@@ -170,7 +155,13 @@
             ><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg
           >
         </button>
-        <a href="/about" class="nav-item text-s hidden sm:inline-block"
+        <a href="/portfolio" class="nav-item text-sm hidden sm:inline-block"
+          >portafolio</a
+        >
+        <a href="/graph" class="nav-item text-sm hidden sm:inline-block"
+          >mapa</a
+        >
+        <a href="/about" class="nav-item text-sm hidden sm:inline-block"
           >whoami</a
         >
         <ThemeToggle />
@@ -179,10 +170,10 @@
   </nav>
 
   <main class="main-layout">
-    <div class="grid-container">
+    <div class="grid-container {!shouldShowExplorer && !shouldShowGraphAndBacklinks ? 'full-width' : ''}">
       <!-- Columna Izquierda: Explorador (Hidden on Mobile) -->
-      <aside class="sidebar sidebar-left">
-        {#if shouldShowExplorer}
+      {#if shouldShowExplorer}
+        <aside class="sidebar sidebar-left">
           <div class="sticky-sidebar">
             <h3 class="sidebar-title">Explorar</h3>
             {#if Search}
@@ -196,12 +187,12 @@
               <TableOfContents />
             {/if}
           </div>
-        {/if}
-      </aside>
+        </aside>
+      {/if}
 
       <!-- Centro: Contenido Principal -->
       <div class="content-area">
-        <div class="content-wrapper">
+        <div class="content-wrapper {isMdNotePage ? 'is-note' : 'is-wide'}">
           {@render children()}
         </div>
 
@@ -214,13 +205,13 @@
       </div>
 
       <!-- Columna Derecha: Grafo y Backlinks (Desktop) -->
-      <aside class="sidebar sidebar-right">
-        <div class="sticky-sidebar">
-          {#if shouldShowGraphAndBacklinks}
+      {#if shouldShowGraphAndBacklinks}
+        <aside class="sidebar sidebar-right">
+          <div class="sticky-sidebar">
             {@render sideContent(false)}
-          {/if}
-        </div>
-      </aside>
+          </div>
+        </aside>
+      {/if}
     </div>
   </main>
 
@@ -322,6 +313,10 @@
 
   .grid-container {
     @apply grid grid-cols-1 lg:grid-cols-[var(--sidebar-width)_1fr_var(--sidebar-width)] gap-8 xl:gap-12;
+    
+    &.full-width {
+      grid-template-columns: 1fr !important;
+    }
   }
 
   .sidebar {
@@ -333,11 +328,11 @@
   }
 
   .sidebar-title {
-    @apply text-[12px] font-mono text-muted uppercase tracking-widest mb-4;
+    @apply text-sm font-mono text-muted uppercase tracking-widest mb-4;
   }
 
   .sidebar-hint {
-    @apply mt-4 text-[12px] font-mono text-muted leading-relaxed italic;
+    @apply mt-4 text-sm font-mono text-muted leading-relaxed italic;
     .highlight {
       @apply text-brand/80;
     }
@@ -348,7 +343,12 @@
   }
 
   .content-wrapper {
-    @apply mx-auto max-w-(--main-content-max-width);
+    @apply mx-auto w-full transition-all duration-300;
+    max-width: var(--layout-max-width);
+  }
+
+  .content-wrapper.is-note {
+    max-width: var(--main-content-max-width);
   }
 
   .card {

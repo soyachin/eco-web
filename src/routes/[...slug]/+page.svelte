@@ -28,10 +28,7 @@
 
 <article class="prose">
   <header class="not-prose border-b border-border-subtle/10 text-left pb-2">
-    <h1
-      id="title"
-      class="text-5xl font-bold text-brand mb-4 leading-none gap-2"
-    >
+    <h1 id="title" class="text-5xl font-bold text-brand mb-2 leading-none">
       {data.meta?.title ?? currentSlug}
     </h1>
 
