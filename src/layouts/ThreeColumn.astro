@@ -1,0 +1,264 @@
+---
+/**
+ * ThreeColumn.astro — Layout principal de tres columnas.
+ * [sidebar-width] | 1fr | [sidebar-width]
+ * Columnas laterales se ocultan en mobile.
+ */
+import Base from './Base.astro';
+import Header from '../components/Header.astro';
+import Search from '../components/Search.svelte';
+import GraphView from '../components/GraphView.svelte';
+import TableOfContents from '../components/TableOfContents.svelte';
+import LinkPreview from '../components/LinkPreview.svelte';
+import { buildBacklinksMap, buildGraphData } from '../lib/backlinks';
+import { sortBacklinksWithFallback } from '../lib/utils';
+import type { Note, Backlink } from '../lib/types';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Slug de la nota actual (undefined si es homepage u otra página) */
+  slug?: string;
+  /** Lista de todas las notas para el grafo y link preview */
+  notes: Note[];
+  /** Mapa de backlinks para el panel derecho */
+  backlinksMap: Record<string, Backlink[]>;
+  /** Si true, el contenido central usa max-width de nota (800px) */
+  isNotePage?: boolean;
+}
+
+const {
+  title,
+  description,
+  slug = '',
+  notes,
+  backlinksMap,
+  isNotePage = false,
+} = Astro.props;
+
+const isHomePage = !slug && (Astro.url.pathname === '/' || Astro.url.pathname === '');
+
+const [calculatedBacklinksMap, graphData] = await Promise.all([
+  buildBacklinksMap(),
+  buildGraphData(),
+]);
+
+const shouldShowExplorer = true;
+const shouldShowGraphAndBacklinks = !!slug || isHomePage;
+
+// Backlinks de la nota actual (máx 10, ordenados por fecha)
+const backlinks = !isHomePage && slug
+  ? sortBacklinksWithFallback(calculatedBacklinksMap[slug] ?? []).slice(0, 10)
+  : [];
+---
+
+<script define:vars={{ slug, shouldShowGraphAndBacklinks, isHomePage }}>
+  console.log('DEBUG:', { slug, shouldShowGraphAndBacklinks, isHomePage })
+</script>
+
+<Base {title} {description}>
+  <div class="layout-root">
+    <Header />
+
+    <main class="main-layout">
+      <div class:list={['grid-container', { 'full-width': !shouldShowExplorer && !shouldShowGraphAndBacklinks }]}>
+
+        <!-- Columna Izquierda: Explorador (oculta en mobile) -->
+        {shouldShowExplorer && (
+          <aside class="sidebar sidebar-left">
+            <div class="sticky-sidebar">
+              <h3 class="sidebar-title">Explorar</h3>
+              <Search isSidebar={true} client:visible />
+              <div class="sidebar-hint">
+                También puedes usar <span class="highlight">Ctrl + K</span>.
+              </div>
+              {isNotePage && <TableOfContents {slug} client:visible />}
+            </div>
+          </aside>
+        )}
+
+        <!-- Columna Central: Contenido -->
+        <div class="content-area">
+          <div class:list={['content-wrapper', { 'is-note': isNotePage }]}>
+            <slot />
+          </div>
+
+          <!-- Mobile: backlinks debajo del contenido (sin grafo) -->
+          {shouldShowGraphAndBacklinks && (
+            <div class="mobile-complement lg:hidden mt-12 space-y-8">
+              {backlinks.length > 0 && !isHomePage && (
+                <section class="card">
+                  <h3 class="card-title">Enlazado en</h3>
+                  <ul class="backlinks-list custom-scrollbar">
+                    {backlinks.map(b => (
+                      <li>
+                        <a href={`/${b.slug}`} class="backlink-item">
+                          <span class="backlink-text">{b.meta?.title ?? b.slug}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </div>
+          )}
+        </div>
+
+        <!-- Columna Derecha: Grafo y Backlinks (oculta en mobile) -->
+        {shouldShowGraphAndBacklinks && (
+          <aside class="sidebar sidebar-right hidden lg:block">
+            <div class="sticky-sidebar">
+              <section class="card">
+                <h3 class="card-title">{isHomePage ? 'Jardín' : 'Interconexiones'}</h3>
+                <div class="graph-wrapper">
+                  <GraphView
+                    client:load
+                    nodes={graphData.nodes}
+                    links={graphData.links}
+                    currentSlug={isHomePage ? '' : slug}
+                    isGlobal={isHomePage}
+                  />
+                </div>
+              </section>
+
+              {backlinks.length > 0 && !isHomePage && (
+                <section class="card overflow-hidden mt-6">
+                  <h3 class="card-title">Enlazado en</h3>
+                  <ul class="backlinks-list custom-scrollbar">
+                    {backlinks.map(b => (
+                      <li>
+                        <a href={`/${b.slug}`} class="backlink-item group">
+                          <span class="backlink-text">{b.meta?.title ?? b.slug}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </div>
+          </aside>
+        )}
+      </div>
+    </main>
+
+    <!-- LinkPreview flotante: recibe notes para encontrar snippets vía evento custom -->
+    <LinkPreview {notes} client:load />
+
+    <!-- Modal de búsqueda (Ctrl+K) y mobile search trigger -->
+    <Search client:load />
+  </div>
+</Base>
+
+<!-- Script para sincronizar el botón mobile con el modal de Search -->
+<script>
+  document.getElementById('mobile-search-trigger')?.addEventListener('click', () => {
+    // Despacha el evento Ctrl+K simulado para que Search.svelte abra el modal
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }));
+  });
+</script>
+
+<script>
+  // LinkPreview: hover sobre links internos con 300ms delay
+  let previewTimer: ReturnType<typeof setTimeout>;
+  const DELAY = 300;
+
+  function showPreview(e: MouseEvent | FocusEvent) {
+    const a = (e.target as HTMLElement).closest('a');
+    if (!a) return;
+    const href = a.getAttribute('href');
+    if (!href?.startsWith('/') || href.length <= 1) return;
+
+    clearTimeout(previewTimer);
+    // Enviar evento customizado para que LinkPreview.svelte lo reciba
+    // (La isla de LinkPreview gestiona su propio estado interno)
+    const x = 'clientX' in e ? (e as MouseEvent).clientX : 0;
+    const y = 'clientY' in e ? (e as MouseEvent).clientY : 0;
+    previewTimer = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('link-preview-show', {
+        detail: { slug: href.slice(1).split(/[?#]/)[0], x, y }
+      }));
+    }, DELAY);
+  }
+
+  function hidePreview(e: MouseEvent | FocusEvent) {
+    const a = (e.target as HTMLElement).closest('a');
+    if (a) {
+      clearTimeout(previewTimer);
+      window.dispatchEvent(new CustomEvent('link-preview-hide'));
+    }
+  }
+
+  document.addEventListener('mouseover', showPreview);
+  document.addEventListener('focusin', showPreview);
+  document.addEventListener('mouseout', hidePreview);
+  document.addEventListener('focusout', hidePreview);
+</script>
+
+<style lang="postcss">
+  @reference "../styles/global.css";
+
+  .layout-root {
+    background-color: var(--bg-primary);
+    min-height: 100vh;
+  }
+
+  .main-layout {
+    @apply mx-auto max-w-(--layout-max-width) px-4 sm:px-6;
+  }
+
+  .grid-container {
+    @apply grid grid-cols-1 lg:grid-cols-[var(--sidebar-width)_1fr_var(--sidebar-width)] gap-8 xl:gap-12;
+    &.full-width { grid-template-columns: 1fr !important; }
+  }
+
+  .sidebar {
+    @apply hidden lg:block py-(--page-top-margin);
+  }
+
+  .sticky-sidebar {
+    @apply sticky;
+    top: calc(var(--nav-height) + 2rem);
+  }
+
+  .sidebar-title {
+    @apply text-sm font-mono text-muted uppercase tracking-widest mb-4;
+  }
+
+  .sidebar-hint {
+    @apply mt-4 text-sm font-mono text-muted leading-relaxed italic;
+    .highlight { @apply text-brand/80; }
+  }
+
+  .content-area {
+    @apply min-w-0 py-(--page-top-margin) pb-12;
+  }
+
+  .content-wrapper {
+    @apply mx-auto w-full;
+    max-width: var(--layout-max-width);
+    &.is-note { max-width: var(--main-content-max-width); }
+  }
+
+  .card {
+    @apply rounded-xl border p-4;
+    background-color: color-mix(in srgb, var(--bg-primary) 80%, transparent);
+    border-color: color-mix(in srgb, var(--fg-primary) 12%, transparent);
+  }
+
+  .card-title {
+    @apply text-[11px] font-mono text-muted uppercase tracking-widest mb-3 border-b border-border-subtle pb-2;
+  }
+
+  .graph-wrapper { @apply h-[250px] w-full overflow-hidden; }
+
+  .backlinks-list {
+    @apply flex flex-col gap-2 max-h-[300px] overflow-y-auto pr-2 text-left;
+  }
+
+  .backlink-item { @apply block no-underline; }
+
+  .backlink-text {
+    @apply text-sm font-medium text-foreground transition-colors block truncate;
+    .backlink-item:hover & { @apply text-brand; }
+  }
+</style>

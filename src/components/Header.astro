@@ -1,0 +1,63 @@
+---
+/**
+ * Header.astro — Navbar estático del sitio.
+ * ThemeToggle es una isla Svelte client:load.
+ */
+import ThemeToggle from './ThemeToggle.svelte';
+---
+
+<nav class="navbar">
+  <div class="navbar-container">
+    <a href="/" class="logo">
+      <span class="text-brand">~/ecomecanico</span>
+    </a>
+
+    <div class="nav-links">
+      <!-- Icono de búsqueda solo visible en mobile (el modal search se activa con Ctrl+K) -->
+      <button
+        id="mobile-search-trigger"
+        class="nav-item lg:hidden p-2 -mr-2"
+        aria-label="Buscar"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+        </svg>
+      </button>
+
+      <!--- <a href="/portfolio" class="nav-item text-sm font-cursive hidden sm:inline-block">portafolio</a>
+      --->
+
+      <a href="/about" class="nav-item text-sm font-cursive hidden sm:inline-block">whoami</a>
+
+      <ThemeToggle client:load />
+    </div>
+  </div>
+</nav>
+
+<style lang="postcss">
+  @reference "../styles/global.css";
+
+  .navbar {
+    @apply sticky top-0 z-40 w-full border-b border-border-subtle backdrop-blur-md;
+    background-color: var(--bg-primary);
+  }
+  .navbar-container {
+    @apply mx-auto flex items-center justify-between px-6;
+    max-width: var(--layout-max-width);
+    height: var(--nav-height);
+  }
+  .logo {
+    @apply flex items-center gap-2 font-syne font-bold text-brand transition-colors hover:text-brand-muted text-2xl no-underline;
+  }
+  .nav-links {
+    @apply flex items-center gap-6 font-mono text-foreground;
+  }
+  .nav-item {
+    @apply transition-colors no-underline text-foreground hover:opacity-80;
+    color: inherit !important;
+  }
+  .nav-item:visited {
+    color: inherit !important;
+  }
+</style>

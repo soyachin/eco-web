@@ -1,0 +1,65 @@
+---
+/**
+ * Base.astro — Shell HTML del sitio.
+ * Importa los estilos globales e inyecta el script de tema para evitar flash.
+ */
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+import '../styles/global.css';
+
+const {
+  title = 'ecomecanico',
+  description = 'Blog de tecnología, arte y software libre.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title} | ecomecanico</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Preload fuentes locales para evitar FOUT -->
+    <link rel="preload" href="/fonts/ComicShannsMono-Regular.otf" as="font" type="font/otf" crossorigin />
+    <link rel="preload" href="/fonts/ComicShannsMono-Bold.otf" as="font" type="font/otf" crossorigin />
+
+    <!-- Google Fonts: Syne Tactile para el logo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Syne+Tactile&family=Inconsolata:wght@200..900&family=Victor+Mono:ital,wght@1,400..700&display=swap" rel="stylesheet" />
+
+    <!-- Script inline: aplica el tema ANTES del primer paint para evitar flash -->
+    <script is:inline>
+      (function () {
+        const theme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+
+    <style is:inline>
+      a, a:link, a:visited, a:active { color: inherit !important; }
+      a strong, a em, a code, a b, a i { color: inherit !important; }
+    </style>
+
+    <script is:inline>
+      document.querySelectorAll('img').forEach(img => {
+        if (img.complete) {
+          img.classList.add('loaded')
+        } else {
+          img.addEventListener('load', () => img.classList.add('loaded'))
+        }
+      })
+    </script>
+
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
