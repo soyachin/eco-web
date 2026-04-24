@@ -24,7 +24,7 @@ jobs:
       - name: Conectar a Tailscale
         uses: tailscale/github-action@v2
         with:
-          oauth-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
