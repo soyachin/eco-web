@@ -18,7 +18,12 @@ jobs:
         with:
           node-version: 22
           cache: 'pnpm'
-
+      - name: Verificar clave
+        run: |
+        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        ssh-keygen -l -f ~/.ssh/deploy_key
+      
       - run: pnpm install --frozen-lockfile
       - run: bash scripts/build.sh
 
