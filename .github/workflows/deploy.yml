@@ -18,12 +18,7 @@ jobs:
         with:
           node-version: 22
           cache: 'pnpm'
-      - name: Verificar clave
-        run: |
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keygen -l -f ~/.ssh/deploy_key
-      
+
       - run: pnpm install --frozen-lockfile
       - run: bash scripts/build.sh
 
@@ -39,6 +34,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+          ssh-keygen -l -f ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
           ssh -i ~/.ssh/deploy_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
             "mkdir -p /var/www/blog.nyarkovchain.site"
