@@ -24,8 +24,8 @@ jobs:
       - name: Conectar a Tailscale
         uses: tailscale/github-action@v2
         with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-client-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          oauth-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
       - name: Deploy a servidor NixOS
