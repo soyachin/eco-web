@@ -1,0 +1,50 @@
+---
+/**
+ * [...slug].astro — Página dinámica para cada nota del blog.
+ * getStaticPaths genera una ruta por cada entrada en src/content/blog/.
+ */
+import { getCollection, render } from 'astro:content';
+import Post from '../layouts/Post.astro';
+import { buildBacklinksMap } from '../lib/backlinks';
+import { generateSnippet } from '../lib/utils';
+import type { Note } from '../lib/types';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('blog', ({ data }) => !data.draft);
+  const backlinksMap = await buildBacklinksMap();
+
+  // Construir la lista de notas una sola vez para todos los paths
+  const notes: Note[] = await Promise.all(entries.map(async e => {
+    // Para el preview no necesitamos el body completo de todas en cada path, 
+    // pero para el grafo centralizado sí.
+    return {
+      slug: e.id,
+      meta: {
+        title: e.data.title,
+        tags: e.data.tags,
+        date: e.data.date ? String(e.data.date) : undefined,
+      },
+    };
+  }));
+
+  return entries.map(entry => ({
+    params: { slug: entry.id },
+    props: { entry, notes, backlinksMap },
+  }));
+}
+
+const { entry, notes, backlinksMap } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Post
+  title={entry.data.title}
+  date={entry.data.date}
+  tags={entry.data.tags}
+  description={entry.data.description}
+  slug={entry.id}
+  {notes}
+  {backlinksMap}
+>
+  <Content />
+</Post>

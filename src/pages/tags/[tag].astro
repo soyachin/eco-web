@@ -1,0 +1,98 @@
+---
+/**
+ * [tag].astro — Lista de notas filtradas por un tag específico.
+ */
+import { getCollection } from 'astro:content';
+import ThreeColumn from '../../layouts/ThreeColumn.astro';
+import { buildBacklinksMap } from '../../lib/backlinks';
+import { generateSnippet, formatDate, sortNotesByDateDesc } from '../../lib/utils';
+import type { Note } from '../../lib/types';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('blog', ({ data }) => !data.draft);
+  const backlinksMap = await buildBacklinksMap();
+
+  const notes: Note[] = await Promise.all(entries.map(async e => {
+    const filePath = path.join(process.cwd(), 'src/content/blog', `${e.id}.mdx`);
+    let body = '';
+    try { body = await fs.readFile(filePath, 'utf-8'); }
+    catch { try { body = await fs.readFile(filePath.replace('.mdx', '.md'), 'utf-8'); } catch { } }
+
+    return {
+      slug: e.id,
+      snippet: generateSnippet(body),
+      meta: {
+        title: e.data.title,
+        tags: e.data.tags,
+        date: e.data.date ? String(e.data.date) : undefined,
+      },
+    };
+  }));
+
+  // Extraer todos los tags únicos
+  const allTags = [...new Set(entries.flatMap(e => e.data.tags))];
+
+  return allTags.map(tag => ({
+    params: { tag },
+    props: {
+      tag,
+      notes,
+      backlinksMap,
+      filtered: sortNotesByDateDesc(notes.filter(n => n.meta.tags?.includes(tag))),
+    },
+  }));
+}
+
+const { tag, notes, backlinksMap, filtered } = Astro.props;
+---
+
+<ThreeColumn
+  title={`#${tag}`}
+  description={`Notas con la etiqueta ${tag}`}
+  {notes}
+  {backlinksMap}
+>
+  <div class="flex flex-col gap-4 mb-12">
+    <div class="flex items-center gap-2 text-muted font-mono">
+      <a href="/" class="hover:text-brand transition-colors">home</a>
+      <span>/</span>
+      <span>tags</span>
+    </div>
+    <h1 class="text-4xl font-bold text-brand tracking-tight">#{tag}</h1>
+    <p class="text-muted font-mono opacity-70">
+      Mostrando {filtered.length} {filtered.length === 1 ? 'nota' : 'notas'} con esta etiqueta.
+    </p>
+  </div>
+
+  <ul class="flex flex-col gap-8">
+    {filtered.map(note => (
+      <li class="group">
+        <div class="flex flex-col gap-1">
+          <a href={`/${note.slug}`} class="block no-underline">
+            <h2 class="text-xl font-semibold text-foreground group-hover:text-brand transition-colors duration-200">
+              {note.meta?.title ?? note.slug}
+            </h2>
+          </a>
+          <div class="flex items-center gap-4 font-mono text-sm text-muted">
+            <span class="opacity-70">{formatDate(note.meta?.date) || '??/??/????'}</span>
+            <div class="flex gap-2">
+              {(note.meta?.tags ?? []).map(t => (
+                <a
+                  href={`/tags/${t}`}
+                  class={`no-underline transition-colors ${t === tag ? 'text-brand font-bold' : 'text-muted hover:text-brand'}`}
+                >
+                  #{t}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </li>
+    ))}
+    {filtered.length === 0 && (
+      <p class="text-muted font-mono opacity-50">No hay notas con esta etiqueta.</p>
+    )}
+  </ul>
+</ThreeColumn>

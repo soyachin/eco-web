@@ -1,0 +1,73 @@
+---
+/**
+ * about.astro — Página "whoami". Conserva la animación wobble y el ASCII art del sitio anterior.
+ */
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+
+// ASCII art del gato
+const catAscii = `        ╱|、
+      (˚ˎ 。7  
+       |、˜〵          
+     じしˍ,)ノ`;
+
+const title = 'ecomecanico';
+const letters = title.split('');
+---
+
+<Base title="whoami" description="ecomecanico: arte, ciencia y tecnología.">
+  <Header />
+  <main class="mx-auto max-w-3xl px-6 py-16">
+    <article class="prose mx-auto flex flex-col items-center overflow-x-hidden">
+      <h1
+        class="syne-tactile text-10xl md:text-9xl text-brand mb-10 text-center lowercase border-none flex flex-wrap justify-center"
+        id="title"
+      >
+        {letters.map((letter, i) => (
+          <span
+            class="wobble-letter inline-block"
+            style={`animation-delay: ${i * 0.1}s`}
+          >
+            {letter === ' ' ? '\u00A0' : letter}
+          </span>
+        ))}
+      </h1>
+
+      <p class="text-center max-w-prose px-6 leading-relaxed">
+        <span class="font-cursive">ecomecanico</span> es el proyecto personal que reune mi pasión por el{' '}
+        <span class="font-cursive">arte y la ciencia</span>. 
+        este es un espacio donde comparto mis aficiones, descubrimientos y proyectos 
+        relacionados con el arte, ciencia y tecnología.
+        <br /><br />
+        por ahora no hay mucho por aquí 
+        pero espero que disfrutes tu estancia y encuentres algo útil.
+      </p>
+
+      <div class="whitespace-pre font-mono text-foreground mt-12 text-center opacity-70">
+        {catAscii}
+      </div>
+    </article>
+  </main>
+</Base>
+
+<style>
+  .syne-tactile {
+    font-family: 'Syne Tactile', system-ui, cursive;
+    line-height: 1.1;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wobble-letter {
+    display: inline-block;
+    will-change: transform;
+    animation: wobble 2.5s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  @keyframes wobble {
+    0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+    25%       { transform: translateY(-3px) rotate(-1.5deg) scale(1.03); }
+    50%       { transform: translateY(2px) rotate(2deg) scale(0.97); }
+    75%       { transform: translateY(-1.5px) rotate(-0.8deg) scale(1.01); }
+  }
+</style>
