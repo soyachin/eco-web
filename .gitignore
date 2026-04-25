@@ -42,3 +42,6 @@ public/_pagefind/
 nixos/
 result/
 result
+src/content/.obsidian/
+src/content/blog/.obsidian/
+src/content/blog/templates/
