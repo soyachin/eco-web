@@ -45,3 +45,5 @@ result
 src/content/.obsidian/
 src/content/blog/.obsidian/
 src/content/blog/templates/
+src/content/blog/attachments/
+public/images/
