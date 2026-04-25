@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "dev": "cp -r src/content/blog/attachments/. public/images/ && astro dev",
+    "build": "bash scripts/build.sh",
     "preview": "astro preview",
     "check": "astro check",
     "build:full": "bash scripts/build.sh"

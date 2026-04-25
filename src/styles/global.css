@@ -99,7 +99,7 @@
 
   /* Fade-in nativo cuando la imagen termina de cargar */
   img {
-    opacity: 0;
+    opacity: 1;
     transition: opacity 0.4s ease;
   }
 
