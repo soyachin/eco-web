@@ -1,6 +1,6 @@
-# Entorno Nix — ecomecanico blog
+# flake.nix 
 {
-  description = "Entorno de desarrollo — ecomecanico blog (Astro 5 + Svelte 5)";
+  description = "------ ecoblog con quartz";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -13,14 +13,10 @@
         devShells.default = pkgs.mkShell {
           packages = [
             pkgs.nodejs_22
-            pkgs.pnpm
             pkgs.git
           ];
           shellHook = ''
             echo "🌱 ecomecanico — entorno listo."
-            echo "  pnpm install         — instalar dependencias"
-            echo "  pnpm dev             — servidor de desarrollo"
-            echo "  bash scripts/build.sh — build + indexar búsqueda"
           '';
         };
       }
