@@ -5,6 +5,8 @@ node_modules/
 dist/
 .astro/
 .agent/ 
+.npmrc
+.envrc
 public/
 # Logs
 npm-debug.log*
