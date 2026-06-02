@@ -1,4 +1,4 @@
 ---
 title: Blog
-description: Artículos y escritos largos
+description: artículos, escritos largos o un "qué aprendí hoy"
 ---

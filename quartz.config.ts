@@ -24,8 +24,8 @@ const config: QuartzConfig = {
       cdnCaching: true,
       typography: {
         header: "Syne Tactile",
-        body: "Schoolbell",
-        code: "Inconsolata",
+        body: "Comic Relief",
+        code: "Fira Code",
       },
       colors: {
         lightMode: {

@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
-
+.quartz-cache/*
+.obsidian
 # Build outputs
 dist/
 .astro/
